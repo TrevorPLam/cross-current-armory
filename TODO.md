@@ -687,19 +687,19 @@ const useRecentlyViewed = () => {
 
 ---
 
-## [TASK-006] Mobile-First Optimization
-- [ ] **Enhance Mobile Experience and Performance**
-  - [ ] Implement Progressive Web App (PWA) features
-    - Target: `public/manifest.json` (create)
-    - Target: `src/service-worker.ts` (create)
-  - [ ] Add touch-friendly gestures and interactions
-    - Target: `src/hooks/useTouchGestures.ts` (create)
-  - [ ] Optimize for Core Web Vitals
-    - Target: `vite.config.ts` (performance optimization)
-  - [ ] Create mobile-specific product quick view
-    - Target: `src/components/ui/QuickView.tsx` (create)
-  - [ ] Implement mobile-first navigation patterns
-    - Target: `src/components/organisms/Navigation/Navigation.tsx` (modify)
+## [TASK-006] Mobile-First Optimization ✅ COMPLETED
+- [x] **Enhance Mobile Experience and Performance**
+  - [x] Implement Progressive Web App (PWA) features
+    - Target: `public/manifest.json` (create) ✅
+    - Target: `src/service-worker.ts` (create) ✅
+  - [x] Add touch-friendly gestures and interactions
+    - Target: `src/hooks/useTouchGestures.ts` (create) ✅
+  - [x] Optimize for Core Web Vitals
+    - Target: `vite.config.ts` (performance optimization) ✅
+  - [x] Create mobile-specific product quick view
+    - Target: `src/components/ui/QuickView.tsx` (create) ✅
+  - [x] Implement mobile-first navigation patterns
+    - Target: `src/components/organisms/Navigation/Navigation.tsx` (modify) ✅
 
 **Related Code Files:**
 - `src/components/organisms/Navigation/Navigation.tsx` - Current responsive navigation
@@ -1010,7 +1010,7 @@ const errorTracking = {
 - TASK-005: Advanced Search and Filtering ✅ COMPLETED
 
 ### Phase 3 (Advanced features)
-- TASK-006: Mobile-First Optimization (PWA, touch gestures, QuickView)
+- TASK-006: Mobile-First Optimization (PWA, touch gestures, QuickView) ✅ COMPLETED
 - TASK-007: Content Management System (Scalability)
 - TASK-008: Analytics and Performance Monitoring (Data-Driven)
 
@@ -1040,7 +1040,26 @@ const errorTracking = {
 
 ## Recent Updates
 
-### ✅ TASK-004 & TASK-005 COMPLETED (March 16, 2026)
+### ✅ TASK-006 COMPLETED (March 16, 2026)
+Successfully implemented Mobile-First Optimization:
+
+**PWA (Progressive Web App)**
+- **`public/manifest.json`**: Web app manifest with name, icons, theme/background colors, display mode, shortcuts, and categories — enables "Add to Home Screen" on iOS/Android
+- **`src/service-worker.ts`**: TypeScript service worker with cache-first strategy for static assets, network-first for navigation, and offline fallback; compiled to `dist/service-worker.js` via Vite inline plugin
+- **`index.html`**: Added `<link rel="manifest">`, `theme-color`, apple PWA meta tags, `viewport-fit=cover` for notch/island devices
+- **`src/main.tsx`**: Registers `/service-worker.js` in production (`import.meta.env.PROD`) with `window.load` guard
+- **`vite.config.ts`**: Added inline `service-worker-build` plugin that runs a second Vite `lib` build to produce `dist/service-worker.js` as an IIFE bundle
+
+**Touch Gestures**
+- **`src/hooks/useTouchGestures.ts`**: Detects swipe direction (left/right/up/down) with configurable `threshold`, `maxDuration`, and `enabled` flag; returns `{ swipeDirection, isSwiping, deltaX, deltaY }`; passive listeners for smooth scrolling; exported from `src/hooks/index.ts`
+
+**QuickView Modal**
+- **`src/components/ui/QuickView.tsx`**: Mobile bottom-sheet / desktop centred dialog for fast product preview; supports swipe-down-to-dismiss via `useTouchGestures`; locks body scroll when open; full accessibility (role dialog, aria-modal, Escape key, focus management); product image, rating stars, price, category badge, specs preview; Add to Cart + View Full Details actions
+
+**Mobile-First Navigation**
+- **`src/components/organisms/Navigation/Navigation.tsx`**: Added `useTouchGestures` on the mobile menu element; swipe-left or swipe-up closes the menu, providing native-feel gesture navigation on touch devices
+
+
 Successfully implemented Trust Signals + Advanced Search & Filtering:
 
 **TASK-004 – Trust Signals (remaining items)**
@@ -1121,7 +1140,7 @@ Successfully implemented repository foundation setup with:
 
 ### 🎯 Next Priority Tasks
 1. **Storefront Phase 2**: Fetch products/collections from Shopify Storefront API; power collection and product pages with live data (44 products, real variant IDs for checkout). Generate sitemap from API when implemented.
-2. **TASK-006**: Mobile-First Optimization (PWA, offline support, touch gestures, QuickView modal).
+2. **TASK-006**: Mobile-First Optimization (PWA, offline support, touch gestures, QuickView modal) ✅ COMPLETED.
 3. **TASK-007**: Content Management System.
 4. **TASK-008**: Analytics and Performance Monitoring.
 

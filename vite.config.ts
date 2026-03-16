@@ -4,7 +4,36 @@ import { resolve } from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Inline plugin: emit compiled service-worker as a separate IIFE bundle
+    {
+      name: 'service-worker-build',
+      apply: 'build',
+      async writeBundle() {
+        const { build } = await import('vite')
+        try {
+          await build({
+            configFile: false,
+            build: {
+              lib: {
+                entry: resolve(__dirname, 'src/service-worker.ts'),
+                name: 'ServiceWorker',
+                formats: ['iife'],
+                fileName: () => 'service-worker.js',
+              },
+              outDir: 'dist',
+              emptyOutDir: false,
+              minify: 'terser',
+              sourcemap: false,
+            },
+          })
+        } catch (err) {
+          throw new Error(`Service worker build failed: ${err instanceof Error ? err.message : String(err)}`)
+        }
+      },
+    },
+  ],
   build: {
     // Optimize build for better mobile performance
     target: 'es2020',

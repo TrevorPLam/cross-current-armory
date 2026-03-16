@@ -1,7 +1,9 @@
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Menu, X, Search, ShoppingCart, User } from 'lucide-react'
 import { useCart } from '../../../hooks'
+import { useTouchGestures } from '../../../hooks/useTouchGestures'
 import { companyInfo } from '../../../data'
 
 interface NavigationProps {
@@ -13,6 +15,15 @@ interface NavigationProps {
 
 export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCount = 0 }: NavigationProps) {
   const { setIsOpen } = useCart()
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const { swipeDirection } = useTouchGestures(mobileMenuRef, { threshold: 60, enabled: isMenuOpen })
+
+  // Swipe-left or swipe-up on the open mobile menu closes it
+  useEffect(() => {
+    if (swipeDirection === 'left' || swipeDirection === 'up') {
+      setIsMenuOpen(false)
+    }
+  }, [swipeDirection, setIsMenuOpen])
 
   const navLinks = [
     { to: '/', label: 'Home' },
@@ -116,6 +127,7 @@ export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCou
 
       {/* Mobile menu */}
       <motion.div
+        ref={mobileMenuRef}
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: isMenuOpen ? 1 : 0, height: isMenuOpen ? 'auto' : 0 }}
         className="md:hidden bg-gray-800 overflow-hidden"
