@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { Product } from '../types'
-import { ecommerceAnalytics } from '../analytics/tracking'
+import type { Product } from '@/types'
+import { ecommerceAnalytics } from '@/analytics/tracking'
 
 export interface CartItem {
   id: string

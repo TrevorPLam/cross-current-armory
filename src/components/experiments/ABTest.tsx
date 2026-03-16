@@ -2,7 +2,7 @@
 // Provides split testing capabilities with analytics integration and user segmentation
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { analytics } from '../analytics/tracking'
+import { analytics } from '@/analytics/tracking'
 
 // A/B Test configuration interfaces
 export interface ABTestConfig {

@@ -133,10 +133,15 @@ export function useShopifyCollection(handle: string) {
   const fetchCollection = useCallback(async () => {
     if (!handle) return
     if (!isShopifyConfigured()) {
-      // Fallback to static data filtering
-      const filteredProducts = staticProducts.filter(product => 
-        product.category.toLowerCase().replace(/\s+/g, '-') === handle
-      )
+      // Fallback to static data filtering using live site collection handles
+      const filteredProducts = staticProducts.filter(product => {
+        const productHandle = product.category.toLowerCase().replace(/\s+/g, '-').replace(/[–—]/g, '-')
+        return handle === 'all' || 
+               (handle === 'armor' && product.category.toLowerCase().includes('armor')) ||
+               (handle === 'armor-plates' && product.category.toLowerCase().includes('plate')) ||
+               (handle === 'kit-accessories' && !product.category.toLowerCase().includes('armor') && !product.category.toLowerCase().includes('plate')) ||
+               productHandle === handle
+      })
       setProducts(filteredProducts)
       return
     }
@@ -167,10 +172,15 @@ export function useShopifyCollection(handle: string) {
       console.error('Shopify collection fetch error:', errorMessage)
       setError(errorMessage)
       
-      // Fallback to static data
-      const filteredProducts = staticProducts.filter(product => 
-        product.category.toLowerCase().replace(/\s+/g, '-') === handle
-      )
+      // Fallback to static data using live site collection handles
+      const filteredProducts = staticProducts.filter(product => {
+        const productHandle = product.category.toLowerCase().replace(/\s+/g, '-').replace(/[–—]/g, '-')
+        return handle === 'all' || 
+               (handle === 'armor' && product.category.toLowerCase().includes('armor')) ||
+               (handle === 'armor-plates' && product.category.toLowerCase().includes('plate')) ||
+               (handle === 'kit-accessories' && !product.category.toLowerCase().includes('armor') && !product.category.toLowerCase().includes('plate')) ||
+               productHandle === handle
+      })
       setProducts(filteredProducts)
     } finally {
       setLoading(false)
@@ -295,9 +305,9 @@ export function useShopifyNavigation() {
         .sort((a, b) => a.title.localeCompare(b.title))
     : [
         { title: 'All', handle: 'all', url: '/collections/all' },
-        { title: 'Body Armor', handle: 'body-armor', url: '/collections/body-armor' },
-        { title: 'Plate Carriers', handle: 'plate-carriers', url: '/collections/plate-carriers' },
-        { title: 'Equipment', handle: 'equipment', url: '/collections/equipment' },
+        { title: 'Armor', handle: 'armor', url: '/collections/armor' },
+        { title: 'Armor Plates', handle: 'armor-plates', url: '/collections/armor-plates' },
+        { title: 'Kit Accessories', handle: 'kit-accessories', url: '/collections/kit-accessories' },
       ]
 
   return {

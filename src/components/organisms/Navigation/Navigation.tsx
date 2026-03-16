@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Menu, X, Search, ShoppingCart, User } from 'lucide-react'
-import { useCart } from '../../../hooks'
-import { useTouchGestures } from '../../../hooks/useTouchGestures'
-import { useShopifyNavigation } from '../../../hooks/useShopify'
-import { companyInfo } from '../../../data'
+import { Menu, X, Search, ShoppingCart, User, ChevronDown } from 'lucide-react'
+import { useCart } from '@/hooks'
+import { useTouchGestures } from '@/hooks/useTouchGestures'
+import { useShopifyNavigation } from '@/hooks/useShopify'
+import { companyInfo } from '@/data'
 
 interface NavigationProps {
   isMenuOpen: boolean
@@ -17,6 +17,8 @@ interface NavigationProps {
 export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCount = 0 }: NavigationProps) {
   const { setIsOpen } = useCart()
   const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { swipeDirection } = useTouchGestures(mobileMenuRef, { threshold: 60, enabled: isMenuOpen })
   const { navigationItems } = useShopifyNavigation()
 
@@ -26,6 +28,31 @@ export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCou
       setIsMenuOpen(false)
     }
   }, [swipeDirection, setIsMenuOpen])
+
+  // Close dropdown when clicking outside or pressing escape
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleEscape)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isDropdownOpen])
 
   // Build navigation links with Shopify collections or fallback
   const navLinks = [
@@ -59,15 +86,79 @@ export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCou
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map(link => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:text-white"
+            <Link
+              to="/"
+              className="text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:text-white"
+            >
+              Home
+            </Link>
+            
+            {/* Shop by Category Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:text-white"
+                aria-label="Shop by category"
+                aria-expanded={isDropdownOpen}
               >
-                {link.label}
-              </Link>
-            ))}
+                Shop
+                <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700"
+                    role="menu"
+                  >
+                    <div className="py-2">
+                      <Link
+                        to="/collections/all"
+                        className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+                        role="menuitem"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        All Products
+                      </Link>
+                      {navigationItems.slice(0, 4).map(item => (
+                        <Link
+                          key={item.handle}
+                          to={item.url}
+                          className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+                          role="menuitem"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          {item.title}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
+            <Link
+              to="/blog"
+              className="text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:text-white"
+            >
+              Blog
+            </Link>
+            <Link
+              to="/#about"
+              className="text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:text-white"
+            >
+              About
+            </Link>
+            <Link
+              to="/#contact"
+              className="text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:text-white"
+            >
+              Contact
+            </Link>
           </div>
 
           {/* Right side buttons */}
@@ -78,12 +169,15 @@ export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCou
             >
               <Search className="h-5 w-5" />
             </button>
-            <button 
+            <a 
+              href="https://cross-currentprecisionarmory.com/account"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-gray-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-gray-900"
               aria-label="User account"
             >
               <User className="h-5 w-5" />
-            </button>
+            </a>
             <button 
               onClick={() => setIsOpen(true)}
               className="relative text-gray-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-gray-900"
@@ -139,17 +233,73 @@ export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCou
         role="menu"
       >
         <div className="px-2 pt-2 pb-3 space-y-1">
-          {navLinks.map(link => (
+          <Link
+            to="/"
+            className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:text-white focus:bg-gray-700"
+            role="menuitem"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Home
+          </Link>
+          
+          {/* Mobile Categories */}
+          <div className="border-t border-gray-700 pt-2 mt-2">
+            <div className="px-3 py-2 text-gray-400 text-sm font-medium">Shop by Category</div>
             <Link
-              key={link.to}
-              to={link.to}
+              to="/collections/all"
               className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:text-white focus:bg-gray-700"
               role="menuitem"
               onClick={() => setIsMenuOpen(false)}
             >
-              {link.label}
+              All Products
             </Link>
-          ))}
+            {navigationItems.slice(0, 4).map(item => (
+              <Link
+                key={item.handle}
+                to={item.url}
+                className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:text-white focus:bg-gray-700"
+                role="menuitem"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.title}
+              </Link>
+            ))}
+          </div>
+          
+          <Link
+            to="/blog"
+            className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:text-white focus:bg-gray-700"
+            role="menuitem"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Blog
+          </Link>
+          <Link
+            to="/#about"
+            className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:text-white focus:bg-gray-700"
+            role="menuitem"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            About
+          </Link>
+          <Link
+            to="/#contact"
+            className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:text-white focus:bg-gray-700"
+            role="menuitem"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Contact
+          </Link>
+          <a
+            href="https://cross-currentprecisionarmory.com/account"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:text-white focus:bg-gray-700"
+            role="menuitem"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Account
+          </a>
         </div>
       </motion.div>
     </nav>

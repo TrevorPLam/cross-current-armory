@@ -34,10 +34,6 @@ export interface ComparisonData {
   specifications: Record<string, string | number>
 }
 
-export interface CartItem extends Product {
-  quantity: number
-}
-
 export interface ContactForm {
   name: string
   email: string
@@ -45,3 +41,6 @@ export interface ContactForm {
 }
 
 export type Category = 'All' | 'Body Armor' | 'Plate Carriers' | 'Equipment'
+
+// Re-export CartItem from hooks for centralized type access
+export type { CartItem } from '../hooks/index'

@@ -36,6 +36,46 @@ export const seoOptimization = {
       seller: {
         '@type': 'Organization',
         name: 'Cross-Current Precision Armory'
+      },
+      // 2026 shipping details enhancement
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '9.99',
+          currency: 'USD'
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          businessDays: {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['https://schema.org/Monday', 'https://schema.org/Tuesday', 'https://schema.org/Wednesday', 'https://schema.org/Thursday', 'https://schema.org/Friday']
+          },
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 2,
+            unitCode: 'DAY'
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 3,
+            maxValue: 5,
+            unitCode: 'DAY'
+          }
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'US'
+        }
+      },
+      // 2026 merchant return policy enhancement
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 30,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/RestockingFees'
       }
     },
     aggregateRating: product.rating ? {
@@ -44,7 +84,16 @@ export const seoOptimization = {
       reviewCount: product.reviews || 0,
       bestRating: 5,
       worstRating: 1
-    } : undefined
+    } : undefined,
+    // Additional 2026 enhancements
+    sku: product.id,
+    category: 'Tactical Gear',
+    material: 'High-strength materials',
+    weight: {
+      '@type': 'QuantitativeValue',
+      value: 'Varies by product',
+      unitCode: 'KG'
+    }
   }),
 
   // Generate organization structured data

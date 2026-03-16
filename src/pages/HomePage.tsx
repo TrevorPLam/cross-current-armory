@@ -1,21 +1,22 @@
-import { Hero } from '../components/organisms/Hero'
-import { Features } from '../components/organisms/Features'
-import { ProductCard } from '../components/molecules/ProductCard'
-import { ContactForm } from '../components/ui/ContactForm'
-import { TrustBadges } from '../components/ui/TrustBadges'
-import { Testimonials } from '../components/sections/Testimonials'
-import { Media } from '../components/sections/Media'
-import { FAQ } from '../components/sections/FAQ'
-import { Education } from '../components/sections/Education'
-import { Gallery } from '../components/ugc/Gallery'
-import { LiveCounter } from '../components/ui/LiveCounter'
-import { ReviewSystem } from '../components/ui/ReviewSystem'
-import { SearchBox } from '../components/ui/SearchBox'
-import { LoadingSpinner } from '../components/ui/LoadingSpinner'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
-import { useSearch } from '../hooks/useSearch'
-import { useShopifyProducts, useShopifyNavigation } from '../hooks/useShopify'
-import { companyInfo } from '../data'
+import { Hero } from '@/components/organisms/Hero'
+import { Features } from '@/components/organisms/Features'
+import { ProductCard } from '@/components/molecules/ProductCard'
+import { ContactForm } from '@/components/ui/ContactForm'
+import { TrustBadges } from '@/components/ui/TrustBadges'
+import { Testimonials } from '@/components/sections/Testimonials'
+import { Media } from '@/components/sections/Media'
+import { FAQ } from '@/components/sections/FAQ'
+import { Education } from '@/components/sections/Education'
+import { Gallery } from '@/components/ugc/Gallery'
+import { LiveCounter } from '@/components/ui/LiveCounter'
+import { ReviewSystem } from '@/components/ui/ReviewSystem'
+import { SearchBox } from '@/components/ui/SearchBox'
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
+import { SEOMeta } from '@/components/seo/SEOMeta'
+import { useSearch } from '@/hooks/useSearch'
+import { useShopifyProducts, useShopifyNavigation } from '@/hooks/useShopify'
+import { companyInfo } from '@/data'
 
 export function HomePage() {
   const { products, loading, error } = useShopifyProducts()
@@ -59,6 +60,23 @@ export function HomePage() {
 
   return (
     <>
+      <SEOMeta
+        title="Cross-Current Precision Armory - Texas Proud, Family Strong"
+        description="Texas Proud, Family Strong - Providing top-notch customer service alongside high-quality tactical gear and apparel."
+        keywords={['tactical gear', 'body armor', 'outdoor equipment', 'survival gear', 'veteran owned', 'texas proud']}
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'Cross-Current Precision Armory',
+          description: 'Texas Proud, Family Strong - Your trusted source for tactical gear and equipment',
+          url: typeof window !== 'undefined' ? window.location.origin : 'https://cross-currentprecisionarmory.com',
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: `${typeof window !== 'undefined' ? window.location.origin : 'https://cross-currentprecisionarmory.com'}/search?q={search_term_string}`,
+            'query-input': 'required name=search_term_string'
+          }
+        }}
+      />
       <Hero />
       <Features />
 

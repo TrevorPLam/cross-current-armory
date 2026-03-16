@@ -1,14 +1,16 @@
 import { useParams, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { useShopifyProduct } from '../hooks/useShopify'
-import { useRecentlyViewed } from '../hooks/useRecentlyViewed'
-import { Recommendations } from '../components/ui/Recommendations'
-import { LoadingSpinner } from '../components/ui/LoadingSpinner'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
-import { ProductGallery } from '../components/ui/ProductGallery'
-import { Button } from '../components/atoms/Button/Button'
-import { useCart } from '../hooks'
-import { getProductOptions, findVariantByOptions } from '../utils/shopifyMapper'
+import { useShopifyProduct, useShopifyProducts } from '@/hooks/useShopify'
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed'
+import { Recommendations } from '@/components/ui/Recommendations'
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
+import { ProductGallery } from '@/components/ui/ProductGallery'
+import { Button } from '@/components/atoms/Button/Button'
+import { SEOMeta } from '@/components/seo/SEOMeta'
+import { seoOptimization } from '@/utils/seo'
+import { useCart } from '@/hooks'
+import { getProductOptions, findVariantByOptions } from '@/utils/shopifyMapper'
 
 export function ProductPage() {
   const { handle } = useParams<{ handle: string }>()
@@ -98,7 +100,18 @@ export function ProductPage() {
   const isAvailable = selectedVariant?.available ?? product.inStock
 
   return (
-    <div className="py-16 bg-gray-50 min-h-screen">
+    <>
+      {product && (
+        <SEOMeta
+          title={`${product.name} - Cross-Current Precision Armory`}
+          description={product.description}
+          keywords={[product.name, 'tactical gear', 'body armor', 'outdoor equipment', 'survival gear']}
+          ogType="product"
+          ogImage={product.image}
+          structuredData={seoOptimization.generateProductStructuredData(product)}
+        />
+      )}
+      <div className="py-16 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link to="/collections/all" className="text-red-600 hover:text-red-700 text-sm font-medium mb-6 inline-block">
           ← Back to products
@@ -217,5 +230,6 @@ export function ProductPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

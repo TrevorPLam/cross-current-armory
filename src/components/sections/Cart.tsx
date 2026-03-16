@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { X, Plus, Minus, ShoppingBag, Shield, ArrowRight, ArrowLeft } from 'lucide-react'
-import { useCart } from '../../hooks'
-import { TrustBadges, PaymentMethods, SecuritySeals } from '../ui/TrustBadges'
-import { createCartCheckoutUrl, isShopifyConfigured } from '../../lib/shopify'
+import { useCart } from '@/hooks'
+import { TrustBadges, PaymentMethods, SecuritySeals } from '@/components/ui/TrustBadges'
+import { createCartCheckoutUrl, isShopifyConfigured } from '@/lib/shopify'
 
 // Zod schemas for checkout forms
 const shippingSchema = z.object({

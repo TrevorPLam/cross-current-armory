@@ -57,11 +57,11 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout />}>
-              <Route index element={<HomePage />} />
-              <Route path="collections/:handle" element={<CollectionPage />} />
-              <Route path="products/:handle" element={<ProductPage />} />
-              <Route path="blog" element={<BlogPage />} />
-              <Route path="blog/:slug" element={<BlogPostPage />} />
+              <Route index element={<HomePage />} handle={{ crumb: {} }} />
+              <Route path="collections/:handle" element={<CollectionPage />} handle={{ crumb: {} }} />
+              <Route path="products/:handle" element={<ProductPage />} handle={{ crumb: {} }} />
+              <Route path="blog" element={<BlogPage />} handle={{ crumb: {} }} />
+              <Route path="blog/:slug" element={<BlogPostPage />} handle={{ crumb: {} }} />
             </Route>
           </Routes>
         </BrowserRouter>

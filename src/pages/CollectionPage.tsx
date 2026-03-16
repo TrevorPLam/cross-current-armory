@@ -1,14 +1,15 @@
 import { useParams, Link } from 'react-router-dom'
-import { ProductCard } from '../components/molecules/ProductCard'
-import { SearchBox } from '../components/ui/SearchBox'
-import { FilterPanel } from '../components/ui/FilterPanel'
-import { Recommendations } from '../components/ui/Recommendations'
-import { useSearch } from '../hooks/useSearch'
-import { useRecentlyViewed } from '../hooks/useRecentlyViewed'
-import { useShopifyCollection, useShopifyNavigation } from '../hooks/useShopify'
-import { LoadingSpinner } from '../components/ui/LoadingSpinner'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
-import type { Category } from '../types'
+import { ProductCard } from '@/components/molecules/ProductCard'
+import { SearchBox } from '@/components/ui/SearchBox'
+import { FilterPanel } from '@/components/ui/FilterPanel'
+import { Recommendations } from '@/components/ui/Recommendations'
+import { SEOMeta } from '@/components/seo/SEOMeta'
+import { useSearch } from '@/hooks/useSearch'
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed'
+import { useShopifyCollection, useShopifyNavigation } from '@/hooks/useShopify'
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
+import type { Category } from '@/types'
 
 export function CollectionPage() {
   const { handle } = useParams<{ handle: string }>()
@@ -53,7 +54,13 @@ export function CollectionPage() {
   }
 
   return (
-    <div className="py-16 bg-gray-50 min-h-screen">
+    <>
+      <SEOMeta
+        title={isAll ? 'Products - Cross-Current Precision Armory' : `${(handle ?? 'Collection').replace(/-/g, ' ')} - Cross-Current Precision Armory`}
+        description={isAll ? 'Browse our curated selection of tactical gear, body armor, and outdoor equipment.' : 'Browse products in this category.'}
+        keywords={['tactical gear', 'body armor', 'outdoor equipment', 'survival gear', isAll ? 'products' : handle || 'collection']}
+      />
+      <div className="py-16 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-4">
           {isAll ? 'All Products' : (handle ?? 'Collection').replace(/-/g, ' ')}
@@ -134,5 +141,6 @@ export function CollectionPage() {
         )}
       </div>
     </div>
+    </>
   )
 }
