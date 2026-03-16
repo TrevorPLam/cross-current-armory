@@ -1,20 +1,30 @@
-import { Search } from 'lucide-react'
 import { Hero } from '../components/organisms/Hero'
 import { Features } from '../components/organisms/Features'
 import { ProductCard } from '../components/molecules/ProductCard'
 import { ContactForm } from '../components/ui/ContactForm'
 import { TrustBadges } from '../components/ui/TrustBadges'
 import { Testimonials } from '../components/sections/Testimonials'
-import { useProductFilter } from '../hooks'
+import { Media } from '../components/sections/Media'
+import { LiveCounter } from '../components/ui/LiveCounter'
+import { ReviewSystem } from '../components/ui/ReviewSystem'
+import { SearchBox } from '../components/ui/SearchBox'
+import { useSearch } from '../hooks/useSearch'
 import { products, categories, companyInfo } from '../data'
 
 export function HomePage() {
-  const { searchQuery, selectedCategory, filteredProducts, setSearchQuery, setSelectedCategory } = useProductFilter(products)
+  const { query, setQuery, suggestions, filters, setFilter, resetAll, filteredProducts } = useSearch(products)
 
   return (
     <>
       <Hero />
       <Features />
+
+      {/* Live activity counter */}
+      <section className="py-4 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <LiveCounter showStats={true} showNotifications={true} />
+        </div>
+      </section>
 
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,9 +45,9 @@ export function HomePage() {
             {categories.map(category => (
               <button
                 key={category}
-                onClick={() => setSelectedCategory(category)}
+                onClick={() => setFilter('category', category === 'All' ? undefined : category)}
                 className={`px-4 py-2 rounded-full transition-all duration-200 transform hover:scale-105 ${
-                  selectedCategory === category
+                  (filters.category ?? 'All') === category
                     ? 'bg-red-600 text-white shadow-lg'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
@@ -48,16 +58,12 @@ export function HomePage() {
           </div>
 
           <div className="max-w-md mx-auto mb-8">
-            <div className="relative group">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-red-600 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
-              />
-            </div>
+            <SearchBox
+              query={query}
+              onQueryChange={setQuery}
+              suggestions={suggestions}
+              placeholder="Search products..."
+            />
           </div>
 
           <div className="mb-8">
@@ -74,10 +80,7 @@ export function HomePage() {
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
               <button
-                onClick={() => {
-                  setSearchQuery('')
-                  setSelectedCategory('All')
-                }}
+                onClick={resetAll}
                 className="mt-4 text-red-600 hover:text-red-700 font-semibold"
               >
                 Clear filters
@@ -86,6 +89,16 @@ export function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Reviews section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ReviewSystem />
+        </div>
+      </section>
+
+      {/* As Seen In */}
+      <Media />
 
       <section id="about" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
