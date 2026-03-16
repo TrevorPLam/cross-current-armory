@@ -192,3 +192,6 @@ export function useProductFilter(products: Product[]) {
 
   return { searchQuery, selectedCategory, filteredProducts, setSearchQuery, setSelectedCategory }
 }
+
+export { useTouchGestures } from './useTouchGestures'
+export type { SwipeDirection, TouchGestureOptions, TouchGestureResult } from './useTouchGestures'
