@@ -5,6 +5,9 @@ import { ContactForm } from '../components/ui/ContactForm'
 import { TrustBadges } from '../components/ui/TrustBadges'
 import { Testimonials } from '../components/sections/Testimonials'
 import { Media } from '../components/sections/Media'
+import { FAQ } from '../components/sections/FAQ'
+import { Education } from '../components/sections/Education'
+import { Gallery } from '../components/ugc/Gallery'
 import { LiveCounter } from '../components/ui/LiveCounter'
 import { ReviewSystem } from '../components/ui/ReviewSystem'
 import { SearchBox } from '../components/ui/SearchBox'
@@ -100,6 +103,12 @@ export function HomePage() {
       {/* As Seen In */}
       <Media />
 
+      {/* Tactical Gear Education */}
+      <Education />
+
+      {/* Customer Photo Gallery */}
+      <Gallery limit={8} />
+
       <section id="about" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -135,6 +144,9 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ */}
+      <FAQ />
 
       <section id="contact" className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

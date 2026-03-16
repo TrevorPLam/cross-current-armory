@@ -28,6 +28,7 @@ export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCou
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/collections/all', label: 'Products' },
+    { to: '/blog', label: 'Blog' },
     { to: '/#about', label: 'About' },
     { to: '/#contact', label: 'Contact' },
   ]
