@@ -17,13 +17,13 @@ export interface SEOMetadata {
 
 // Enhanced SEO utilities with react-helmet-async support
 export const seoOptimization = {
-  // Generate structured data for products
+  // Generate structured data for products (use real image URL; 2026 favors shippingDetails/hasMerchantReturnPolicy)
   generateProductStructuredData: (product: Product) => ({
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
     description: product.description,
-    image: `${window.location.origin}/products/${product.id}/image.jpg`,
+    image: !product.image ? undefined : product.image.startsWith('http') ? product.image : `${window.location.origin}${product.image.startsWith('/') ? '' : '/'}${product.image}`,
     brand: {
       '@type': 'Brand',
       name: 'Cross-Current Precision Armory'

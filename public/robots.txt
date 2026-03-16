@@ -1,0 +1,5 @@
+# https://cross-currentprecisionarmory.com (update if domain differs)
+User-agent: *
+Allow: /
+
+Sitemap: https://cross-currentprecisionarmory.com/sitemap.xml

@@ -9,6 +9,14 @@
 - **Atomic Design Structure** - Atoms → Molecules → Organisms → Templates → Pages
 - **Accessibility as Growth Strategy** - Supports SEO, UX, and conversion simultaneously
 
+### Performance Targets (Core Web Vitals — 75th percentile)
+- **LCP** (Largest Contentful Paint): ≤ 2.5 s
+- **INP** (Interaction to Next Paint): ≤ 200 ms (primary interactivity metric; replaces FID)
+- **CLS** (Cumulative Layout Shift): ≤ 0.1
+
+### Accessibility & Legal Baseline
+- **WCAG 2.1 Level AA** is the target. **EU:** European Accessibility Act (EAA) in force June 2025. **US:** ADA requirements expand April 2026. Non-compliance can result in fines and litigation.
+
 ### Repository Structure Standards
 ```
 src/
@@ -41,14 +49,14 @@ src/
 
 ## Storefront Replacement (Strategic)
 
-**Goal:** This app replaces the live Shopify theme at [cross-currentprecisionarmory.com](https://cross-currentprecisionarmory.com/). Customers browse and add to cart here; "Proceed to Checkout" redirects to Shopify Checkout. Full plan: **`docs/STOREFRONT-REPLACEMENT-PLAN.md`**. Live site analysis: **`docs/LIVE-SITE-ANALYSIS.md`**.
+**Goal:** This app replaces the live Shopify theme at [cross-currentprecisionarmory.com](https://cross-currentprecisionarmory.com/). Customers browse and add to cart here; "Proceed to Checkout" redirects to Shopify Checkout. Full plan: **`docs/STOREFRONT-REPLACEMENT-PLAN.md`**. Live site: **`docs/LIVE-SITE-ANALYSIS.md`**, **`docs/FULL-SITE-ANALYSIS.md`**. Standards: **`docs/MARKETING-REPOSITORY-BEST-PRACTICES-2026.md`**.
 
 | Phase | Status | Scope |
 |-------|--------|--------|
 | **Phase 1** | ✅ Done | React Router (`/`, `/collections/:handle`, `/products/:handle`), Layout, Shopify API client, cart → `createCartCheckoutUrl` → redirect, `.env.example`, Product `shopifyVariantId` / `handle` |
-| **Phase 2** | Pending | Fetch products/collections from Storefront API; product & collection pages use Shopify data; all 43 products + live categories |
+| **Phase 2** | Pending | Fetch products/collections from Storefront API; product & collection pages use Shopify data; all 44 products + live categories (armor, armor-plates, kit-accessories). See `docs/FULL-SITE-ANALYSIS.md`. |
 | **Phase 3** | Pending | Nav/footer category links; optional Account link to Shopify login |
-| **Phase 4** | Pending | Per-page SEO (Helmet); deploy at store domain; retire old theme |
+| **Phase 4** | Pending | Per-page SEO (Helmet) on all routes; `public/robots.txt` and `public/sitemap.xml` in place (expand sitemap from API in Phase 2); deploy at store domain; retire old theme |
 
 ---
 
@@ -153,26 +161,17 @@ export const Button: React.FC<ButtonProps> = ({
   )
 }
 
-// Performance monitoring hook
+// Performance monitoring (use web-vitals: onLCP, onINP, onCLS — INP replaced FID as interactivity CWV)
 const usePerformanceMetrics = () => {
   useEffect(() => {
-    // Monitor Core Web Vitals
     const observer = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
-        if (entry.entryType === 'largest-contentful-paint') {
-          console.log('LCP:', entry.startTime)
-        }
-        if (entry.entryType === 'first-input') {
-          console.log('FID:', entry.processingStart - entry.startTime)
-        }
-        if (entry.entryType === 'layout-shift') {
-          console.log('CLS:', entry.value)
-        }
+        if (entry.entryType === 'largest-contentful-paint') console.log('LCP:', entry.startTime)
+        if (entry.entryType === 'interaction-to-next-paint') console.log('INP:', (entry as PerformanceEntry & { duration: number }).duration)
+        if (entry.entryType === 'layout-shift') console.log('CLS:', (entry as PerformanceEntry & { value: number }).value)
       })
     })
-    
-    observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] })
-    
+    observer.observe({ entryTypes: ['largest-contentful-paint', 'interaction-to-next-paint', 'layout-shift'] })
     return () => observer.disconnect()
   }, [])
 }
@@ -769,26 +768,25 @@ sw.addEventListener('message', (event) => {
   }
 })
 
-// Performance monitoring
+// Performance monitoring (targets: LCP ≤2.5s, INP ≤200ms, CLS ≤0.1)
 const useCoreWebVitals = () => {
   const [metrics, setMetrics] = useState({
     LCP: 0, // Largest Contentful Paint
-    FID: 0, // First Input Delay
+    INP: 0, // Interaction to Next Paint (replaces FID)
     CLS: 0  // Cumulative Layout Shift
   })
   
   useEffect(() => {
-    // Monitor Core Web Vitals
     const observer = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
         if (entry.entryType === 'largest-contentful-paint') {
           setMetrics(prev => ({ ...prev, LCP: entry.startTime }))
         }
-        // Handle other metrics
+        // INP, CLS handled similarly via web-vitals or observer
       })
     })
     
-    observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] })
+    observer.observe({ entryTypes: ['largest-contentful-paint', 'interaction-to-next-paint', 'layout-shift'] })
     
     return () => observer.disconnect()
   }, [])
@@ -1026,7 +1024,7 @@ const errorTracking = {
 
 ### Performance Metrics
 - **Page Load Time**: <3 seconds on mobile
-- **Core Web Vitals**: All green scores
+- **Core Web Vitals**: LCP ≤2.5s, INP ≤200ms, CLS ≤0.1 (75th percentile). See Performance Targets above.
 - **Mobile Conversion**: Close gap with desktop (1.8% → 3.5%+)
 
 ### User Engagement
@@ -1046,11 +1044,13 @@ const errorTracking = {
 ### 📋 TODO.md sync (March 2026)
 - Added **Storefront Replacement** section (Phase 1 done: Router, Shopify client, cart → checkout redirect).
 - Updated **Repository Structure** to match current `src/` (pages/, lib/, sections/, ui/, seo/).
+- **Storefront Phase 2**: Product count aligned to live site (44); added refs to `docs/FULL-SITE-ANALYSIS.md` and `docs/MARKETING-REPOSITORY-BEST-PRACTICES-2026.md`. Phase 4 notes `public/robots.txt` and `public/sitemap.xml` (expand sitemap from API in Phase 2).
+- **Performance**: Documented CWV targets (LCP ≤2.5s, INP ≤200ms, CLS ≤0.1); **Accessibility**: EAA/ADA 2025–2026 baseline. Code examples updated to use INP instead of FID.
 - **TASK-001**: Noted "Proceed to Checkout" → Shopify; updated related files (Layout, hooks/index, Cart, HomePage).
 - **TASK-003**: Corrected Hero path to `organisms/Hero/Hero.tsx`.
 - **TASK-004**: Marked Testimonials + TrustBadges done; remaining: LiveCounter, ReviewSystem, Media.
 - **TASK-005**: Marked ProductComparison done; remaining: SearchBox, FilterPanel, useRecentlyViewed, Recommendations.
-- **TASK-006**: Corrected Navigation path to `organisms/Navigation/Navigation.tsx`.
+- **TASK-006**: Corrected Navigation path to `organisms/Navigation/Navigation.tsx`; CWV example updated to INP.
 - **Implementation Priority**: Current focus = Storefront Phase 2 + TASK-003; Next Priority updated.
 - Added **Tech Debt & Quality** checklist (path aliases, CartItem type, SEO wiring, payment validation, tests, assets).
 
@@ -1093,7 +1093,7 @@ Successfully implemented repository foundation setup with:
 - Development and production build optimizations
 
 ### 🎯 Next Priority Tasks
-1. **Storefront Phase 2**: Fetch products/collections from Shopify Storefront API; power collection and product pages with live data (43 products, real variant IDs for checkout).
+1. **Storefront Phase 2**: Fetch products/collections from Shopify Storefront API; power collection and product pages with live data (44 products, real variant IDs for checkout). Generate sitemap from API when implemented.
 2. **TASK-003**: Interactive Hero Section Enhancement (mesh gradient, typewriter, particles).
 3. **TASK-004** (remaining): LiveCounter, ReviewSystem, "As Seen In" Media section.
 4. **TASK-005** (remaining): SearchBox with autocomplete, FilterPanel, useRecentlyViewed, Recommendations.
@@ -1106,7 +1106,8 @@ Tracked for follow-up; see `docs/TODO-ANALYSIS-COMPARISON.md` for details.
 
 - [ ] **Path aliases**: Adopt `@/`, `@components`, `@hooks`, etc. from `vite.config.ts` instead of relative imports.
 - [ ] **CartItem type**: Unify single definition in `src/types/index.ts`; remove duplicate in `src/hooks/index.ts`.
-- [ ] **SEO wiring**: Use `SEOMeta` / Helmet in root Layout with `seo.generatePageMetadata()` so meta tags apply.
+- [ ] **SEO wiring**: Use `SEOMeta` / Helmet in root Layout with `seo.generatePageMetadata()` so meta tags apply on all routes.
 - [ ] **Cart payment step**: Ensure payment form uses `type="submit"` and `onSubmit` so Zod validation runs before processing.
 - [ ] **Tests**: Add unit/integration tests for hooks (useCart, useProductFilter), contact form, checkout redirect.
 - [ ] **Asset paths**: Verify `src/assets/index.ts` paths work in production build (or use Vite imports / public folder).
+- [x] **Crawl/index**: `public/robots.txt` and `public/sitemap.xml` added; Phase 2: generate sitemap from Storefront API (product/collection URLs).
