@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# Cross Current Armory
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React + TypeScript application for showcasing tactical equipment and body armor products. Built with Vite, TailwindCSS, and cutting-edge web development tools.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Modern Tech Stack**: React 19, TypeScript, Vite for fast development
+- **Styling**: TailwindCSS for responsive and beautiful UI
+- **Component Architecture**: Atomic design pattern with organized components
+- **Performance**: Optimized build with tree-shaking and code splitting
+- **Accessibility**: WCAG compliant components
+- **SEO Ready**: Built-in SEO optimization
 
-## React Compiler
+## 🛠️ Technology Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 19 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: TailwindCSS 4.2.1
+- **Icons**: Lucide React + Heroicons
+- **Forms**: React Hook Form + Zod validation
+- **Animations**: Framer Motion
+- **Linting**: ESLint with TypeScript support
 
-## Expanding the ESLint configuration
+## 📦 Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# Clone the repository
+git clone https://github.com/TrevorPLam/cross-current-armory.git
+cd cross-current-armory
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Install dependencies
+npm install
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Start development server
+npm run dev
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🏗️ Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── atoms/          # Basic UI elements
+│   ├── molecules/      # Combinations of atoms
+│   ├── organisms/      # Complex UI sections
+│   ├── templates/      # Page layouts
+│   └── ui/            # Reusable UI components
+├── data/              # Static data and content
+├── hooks/             # Custom React hooks
+├── utils/             # Utility functions
+├── types/             # TypeScript type definitions
+└── assets/            # Images and static assets
+```
+
+## 🎯 Development
+
+This project follows atomic design principles and TypeScript best practices. All components are properly typed and include accessibility features.
+
+## 📄 License
+
+This project is private and proprietary.
