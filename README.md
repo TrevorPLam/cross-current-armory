@@ -1,9 +1,12 @@
 # Cross Current Armory
 
-A modern React + TypeScript application for showcasing tactical equipment and body armor products. Built with Vite, TailwindCSS, and cutting-edge web development tools.
+A modern React + TypeScript **storefront** for [Cross-Current Precision Armory](https://cross-currentprecisionarmory.com/). This app replaces the live Shopify theme: customers browse and add to cart here, then complete payment on Shopify Checkout.
+
+Built with Vite, TailwindCSS, and the Shopify Storefront API.
 
 ## 🚀 Features
 
+- **Full storefront replacement**: Home, collections, product pages, cart; checkout redirects to Shopify
 - **Modern Tech Stack**: React 19, TypeScript, Vite for fast development
 - **Styling**: TailwindCSS for responsive and beautiful UI
 - **Component Architecture**: Atomic design pattern with organized components
@@ -31,6 +34,9 @@ cd cross-current-armory
 # Install dependencies
 npm install
 
+# Copy env example and add your Shopify Storefront API token (see below)
+cp .env.example .env
+
 # Start development server
 npm run dev
 
@@ -40,6 +46,15 @@ npm run build
 # Preview production build
 npm run preview
 ```
+
+### Enabling Shopify checkout
+
+To send customers from the cart to Shopify Checkout, set:
+
+- `VITE_SHOPIFY_STORE_DOMAIN` — store subdomain (e.g. `cross-currentprecisionarmory`)
+- `VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN` — from Shopify Admin → Settings → Apps → Develop apps → Storefront API (scopes: read/write checkouts, read product listings)
+
+See `.env.example` and [docs/STOREFRONT-REPLACEMENT-PLAN.md](docs/STOREFRONT-REPLACEMENT-PLAN.md) for details. Without these, the site runs with static product data and “Proceed to Checkout” will show a setup message.
 
 ## 🏗️ Project Structure
 

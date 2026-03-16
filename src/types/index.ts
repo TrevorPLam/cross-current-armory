@@ -12,6 +12,10 @@ export interface Product {
   video?: ProductVideo
   specs?: ProductSpecs
   comparison?: ComparisonData
+  /** Shopify GID (gid://shopify/ProductVariant/...) for checkout; required for Shopify checkout */
+  shopifyVariantId?: string
+  /** Shopify product handle for URLs (e.g. a2-level-iii-alloy-body-armor) */
+  handle?: string
 }
 
 export interface ProductVideo {

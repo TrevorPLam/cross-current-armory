@@ -14,25 +14,41 @@
 src/
 ├── components/
 │   ├── atoms/          # Button, Input, Label, Icon
-│   ├── molecules/      # SearchBar, ProductCard, TestimonialCard
-│   ├── organisms/      # Header, Hero, ProductGrid, Footer
-│   ├── templates/      # PageLayouts, MarketingLayout
-│   └── pages/          # HomePage, ProductPage, AboutPage
-├── hooks/              # Custom React hooks
-├── utils/              # Helper functions, utilities
+│   ├── molecules/      # ProductCard
+│   ├── organisms/      # Navigation, Hero, Features
+│   ├── templates/      # MarketingLayout
+│   ├── sections/       # Cart, Testimonials
+│   ├── ui/             # ContactForm, TrustBadges, ProductGallery, etc.
+│   └── seo/            # SEOMeta
+├── pages/              # HomePage, CollectionPage, ProductPage (route components)
+├── hooks/              # useCart, useProductFilter, useScrollPosition
+├── lib/                # Shopify Storefront API client
+├── utils/              # performance, seo, accessibility, imageOptimization
 ├── types/              # TypeScript type definitions
-├── data/               # Static data, mock data
-├── styles/             # Global styles, Tailwind config
-├── assets/             # Images, icons, static files
-└── App.tsx             # Root component
+├── data/               # Static data, products, companyInfo, testimonials
+├── assets/             # Images, asset path exports
+└── App.tsx             # Router + routes
 ```
 
 ### Component Design Rules
 - **Atoms**: Simple, reusable components (Button, Input, Icon)
-- **Molecules**: Combined atoms (SearchBar, ProductCard, TestimonialCard)
-- **Organisms**: Complex sections (Header, Hero, ProductGrid, Footer)
-- **Templates**: Layout structures (MarketingLayout, ProductLayout)
-- **Pages**: Route components with data fetching
+- **Molecules**: Combined atoms (ProductCard)
+- **Organisms**: Complex sections (Navigation, Hero, Features)
+- **Templates**: Layout structures (MarketingLayout)
+- **Pages**: Route components in `src/pages/` (HomePage, CollectionPage, ProductPage)
+
+---
+
+## Storefront Replacement (Strategic)
+
+**Goal:** This app replaces the live Shopify theme at [cross-currentprecisionarmory.com](https://cross-currentprecisionarmory.com/). Customers browse and add to cart here; "Proceed to Checkout" redirects to Shopify Checkout. Full plan: **`docs/STOREFRONT-REPLACEMENT-PLAN.md`**. Live site analysis: **`docs/LIVE-SITE-ANALYSIS.md`**.
+
+| Phase | Status | Scope |
+|-------|--------|--------|
+| **Phase 1** | ✅ Done | React Router (`/`, `/collections/:handle`, `/products/:handle`), Layout, Shopify API client, cart → `createCartCheckoutUrl` → redirect, `.env.example`, Product `shopifyVariantId` / `handle` |
+| **Phase 2** | Pending | Fetch products/collections from Storefront API; product & collection pages use Shopify data; all 43 products + live categories |
+| **Phase 3** | Pending | Nav/footer category links; optional Account link to Shopify login |
+| **Phase 4** | Pending | Per-page SEO (Helmet); deploy at store domain; retire old theme |
 
 ---
 
@@ -218,7 +234,7 @@ export const SEOMeta: React.FC<SEOMetaProps> = ({
     - Target: `src/data/testimonials.ts` (created) ✅
 
 **Implementation Notes:**
-- ✅ Successfully implemented guest checkout flow with 4-step process
+- ✅ Cart primary CTA is now **"Proceed to Checkout"** → redirects to Shopify Checkout (via Storefront API `cartCreate`). See `docs/STOREFRONT-REPLACEMENT-PLAN.md`. In-app shipping/payment/complete steps remain in code for fallback.
 - ✅ Created optimized ContactForm with Zod validation (Name, Email, Phone, Message)
 - ✅ Enhanced cart system with localStorage persistence and state management
 - ✅ Added comprehensive trust badges and security seals throughout checkout
@@ -226,8 +242,8 @@ export const SEOMeta: React.FC<SEOMetaProps> = ({
 - ✅ Optimized Vite config for mobile performance with advanced chunk splitting
 - ✅ Built reusable TrustBadges component with multiple variants
 - ✅ Created PaymentForm with security badges and validation
-- ✅ Integrated all components into App.tsx with proper cart functionality
-- ✅ Enhanced Navigation component with cart integration
+- ✅ Integrated all components into Layout/routes with proper cart functionality
+- ✅ Enhanced Navigation component with cart integration and React Router links
 
 **Performance Improvements:**
 - Bundle size optimized from ~1MB to ~475KB total (gzipped)
@@ -237,17 +253,18 @@ export const SEOMeta: React.FC<SEOMetaProps> = ({
 - Build time: 2.46s for production
 
 **Conversion Features Implemented:**
-- Guest checkout reduces friction by 25% (eliminates account creation requirement)
+- Proceed to Checkout → Shopify (no account required; real payment on Shopify)
 - 4-field contact form with real-time validation improves completion rates
 - Security badges (SSL, PCI DSS, payment methods) increase trust
 - Testimonials with specific results provide social proof
 - Mobile-optimized design ensures <3 second load times
-- Progress indicators in checkout reduce abandonment
+- Progress indicators in cart/checkout flow reduce abandonment
 
 **Related Code Files:**
-- `src/App.tsx` - Main application with contact form
-- `src/hooks/useCart.ts` - Current cart implementation
-- `src/components/sections/Contact.tsx` - Contact section
+- `src/App.tsx` - Router; `src/components/Layout.tsx` - Layout with cart
+- `src/hooks/index.ts` - useCart, useProductFilter, useScrollPosition
+- `src/pages/HomePage.tsx` - Contact section + ContactForm
+- `src/components/sections/Cart.tsx` - Cart drawer + Proceed to Checkout → Shopify
 
 **Existing Code Patterns:**
 ```typescript
@@ -324,9 +341,9 @@ const usePageSpeed = () => {
 - ✅ Build passes successfully with optimized bundle sizes (total ~475KB gzipped)
 
 **Related Code Files:**
-- `src/components/ui/ProductCard.tsx` - Current product display
+- `src/components/molecules/ProductCard/ProductCard.tsx` - Product display + gallery modal
 - `src/data/index.ts` - Product data structure
-- `src/types/index.ts` - Product type definitions
+- `src/types/index.ts` - Product type definitions (Product, shopifyVariantId, handle)
 
 **Existing Code Patterns:**
 ```typescript
@@ -381,7 +398,7 @@ const Product360Viewer: React.FC<{images: string[]}> = ({images}) => {
 ## [TASK-003] Interactive Hero Section Enhancement
 - [ ] **Modern Hero Section with Advanced Animations**
   - [ ] Add mesh gradient background with animated colors
-    - Target: `src/components/sections/Hero.tsx` (modify)
+    - Target: `src/components/organisms/Hero/Hero.tsx` (modify)
   - [ ] Implement mouse-move interactive elements
     - Target: `src/hooks/useMouseMove.ts` (create)
   - [ ] Add noise texture overlay for depth
@@ -392,7 +409,7 @@ const Product360Viewer: React.FC<{images: string[]}> = ({images}) => {
     - Target: `src/components/ui/Particles.tsx` (create)
 
 **Related Code Files:**
-- `src/components/sections/Hero.tsx` - Current hero implementation
+- `src/components/organisms/Hero/Hero.tsx` - Current hero implementation
 - `tailwind.config.js` - Custom theme configurations
 
 **Existing Code Patterns:**
@@ -468,21 +485,20 @@ const useTypewriter = (text: string, speed: number = 50) => {
 
 ## [TASK-004] Trust Signals and Social Proof
 - [ ] **Build Comprehensive Trust Building System**
-  - [ ] Create customer testimonial carousel with photos
-    - Target: `src/components/sections/Testimonials.tsx` (create)
-    - Target: `src/data/testimonials.ts` (create)
+  - [x] Customer testimonial carousel with photos ✅ (TASK-001)
+    - `src/components/sections/Testimonials.tsx`, `src/data/testimonials.ts`
   - [ ] Add live customer count and recent purchases
     - Target: `src/components/ui/LiveCounter.tsx` (create)
   - [ ] Implement review system with photos and detailed feedback
     - Target: `src/components/ui/ReviewSystem.tsx` (create)
-  - [ ] Add trust badges (SSL, payment methods, certifications)
-    - Target: `src/components/ui/TrustBadges.tsx` (create)
+  - [x] Trust badges (SSL, payment methods, certifications) ✅ (TASK-001)
+    - `src/components/ui/TrustBadges.tsx`
   - [ ] Create "As Seen In" media mentions section
     - Target: `src/components/sections/Media.tsx` (create)
 
 **Related Code Files:**
-- `src/components/sections/Hero.tsx` - Current trust badges
-- `src/components/ui/ProductCard.tsx` - Basic rating display
+- `src/components/organisms/Hero/Hero.tsx` - Hero trust badges
+- `src/components/molecules/ProductCard/ProductCard.tsx` - Rating display
 
 **Existing Code Patterns:**
 ```typescript
@@ -568,8 +584,8 @@ interface Review {
     - Target: `src/hooks/useSearch.ts` (create)
   - [ ] Implement faceted search with multiple filters
     - Target: `src/components/ui/FilterPanel.tsx` (create)
-  - [ ] Add product comparison tool
-    - Target: `src/components/ui/ProductComparison.tsx` (create)
+  - [x] Product comparison tool ✅ (TASK-002)
+    - `src/components/ui/ProductComparison/ProductComparison.tsx`
   - [ ] Create "Recently Viewed" products tracking
     - Target: `src/hooks/useRecentlyViewed.ts` (create)
   - [ ] Implement smart recommendations based on browsing
@@ -577,7 +593,7 @@ interface Review {
 
 **Related Code Files:**
 - `src/hooks/index.ts` - Current useProductFilter hook
-- `src/App.tsx` - Current search implementation
+- `src/pages/HomePage.tsx` - Search on home; `src/pages/CollectionPage.tsx` - Collection filtering
 
 **Existing Code Patterns:**
 ```typescript
@@ -684,10 +700,11 @@ const useRecentlyViewed = () => {
   - [ ] Create mobile-specific product quick view
     - Target: `src/components/ui/QuickView.tsx` (create)
   - [ ] Implement mobile-first navigation patterns
-    - Target: `src/components/layout/Navigation.tsx` (modify)
+    - Target: `src/components/organisms/Navigation/Navigation.tsx` (modify)
 
 **Related Code Files:**
-- `src/components/layout/Navigation.tsx` - Current responsive navigation
+- `src/components/organisms/Navigation/Navigation.tsx` - Current responsive navigation
+- `src/components/Layout.tsx` - Layout with nav, cart, footer
 - `vite.config.ts` - Build configuration
 - `index.html` - HTML template
 
@@ -799,7 +816,7 @@ const useCoreWebVitals = () => {
 
 **Related Code Files:**
 - `src/data/index.ts` - Current static data
-- `src/App.tsx` - Static sections
+- `src/pages/HomePage.tsx` - Static sections (About, Contact); `src/App.tsx` - Router
 
 **Existing Code Patterns:**
 ```typescript
@@ -881,7 +898,7 @@ const FAQSystem: React.FC<{faqs: FAQ[]}> = ({faqs}) => {
     - Target: `src/utils/errorTracking.ts` (create)
 
 **Related Code Files:**
-- `src/App.tsx` - Main application for tracking
+- `src/App.tsx` - Router; `src/components/Layout.tsx` - Main layout for tracking
 - `vite.config.ts` - Build configuration
 
 **Existing Code Patterns:**
@@ -987,17 +1004,16 @@ const errorTracking = {
 
 ## Implementation Priority
 
-### Phase 1 (Week 1-2): Foundation
-- TASK-001: Conversion Rate Optimization (High Impact)
-- TASK-002: Enhanced Product Experience (Core Feature)
-- TASK-003: Interactive Hero Section (User Experience)
+### Current focus
+- **Storefront Phase 2**: Shopify as catalog source (products/collections from API; see `docs/STOREFRONT-REPLACEMENT-PLAN.md`)
+- **TASK-003**: Interactive Hero Section (User Experience)
 
-### Phase 2 (Week 3-4): Trust Building
-- TASK-004: Trust Signals and Social Proof (Essential)
-- TASK-005: Advanced Search and Filtering (User Experience)
+### Phase 2 (Trust & discovery)
+- TASK-004: Trust Signals and Social Proof (remaining: LiveCounter, ReviewSystem, Media)
+- TASK-005: Advanced Search and Filtering (remaining: SearchBox, FilterPanel, useRecentlyViewed, Recommendations)
 
-### Phase 3 (Week 5-6): Advanced Features
-- TASK-006: Mobile-First Optimization (Performance)
+### Phase 3 (Advanced features)
+- TASK-006: Mobile-First Optimization (PWA, touch gestures, QuickView)
 - TASK-007: Content Management System (Scalability)
 - TASK-008: Analytics and Performance Monitoring (Data-Driven)
 
@@ -1026,6 +1042,17 @@ const errorTracking = {
 ---
 
 ## Recent Updates
+
+### 📋 TODO.md sync (March 2026)
+- Added **Storefront Replacement** section (Phase 1 done: Router, Shopify client, cart → checkout redirect).
+- Updated **Repository Structure** to match current `src/` (pages/, lib/, sections/, ui/, seo/).
+- **TASK-001**: Noted "Proceed to Checkout" → Shopify; updated related files (Layout, hooks/index, Cart, HomePage).
+- **TASK-003**: Corrected Hero path to `organisms/Hero/Hero.tsx`.
+- **TASK-004**: Marked Testimonials + TrustBadges done; remaining: LiveCounter, ReviewSystem, Media.
+- **TASK-005**: Marked ProductComparison done; remaining: SearchBox, FilterPanel, useRecentlyViewed, Recommendations.
+- **TASK-006**: Corrected Navigation path to `organisms/Navigation/Navigation.tsx`.
+- **Implementation Priority**: Current focus = Storefront Phase 2 + TASK-003; Next Priority updated.
+- Added **Tech Debt & Quality** checklist (path aliases, CartItem type, SEO wiring, payment validation, tests, assets).
 
 ### ✅ TASK-001 COMPLETED (March 15, 2026)
 Successfully implemented Conversion Rate Optimization with:
@@ -1066,7 +1093,20 @@ Successfully implemented repository foundation setup with:
 - Development and production build optimizations
 
 ### 🎯 Next Priority Tasks
-Based on the implementation roadmap, the next high-priority tasks are:
-1. **TASK-001**: Conversion Rate Optimization
-2. **TASK-002**: Enhanced Product Experience  
-3. **TASK-003**: Interactive Hero Section Enhancement
+1. **Storefront Phase 2**: Fetch products/collections from Shopify Storefront API; power collection and product pages with live data (43 products, real variant IDs for checkout).
+2. **TASK-003**: Interactive Hero Section Enhancement (mesh gradient, typewriter, particles).
+3. **TASK-004** (remaining): LiveCounter, ReviewSystem, "As Seen In" Media section.
+4. **TASK-005** (remaining): SearchBox with autocomplete, FilterPanel, useRecentlyViewed, Recommendations.
+
+---
+
+## Tech Debt & Quality (from codebase analysis)
+
+Tracked for follow-up; see `docs/TODO-ANALYSIS-COMPARISON.md` for details.
+
+- [ ] **Path aliases**: Adopt `@/`, `@components`, `@hooks`, etc. from `vite.config.ts` instead of relative imports.
+- [ ] **CartItem type**: Unify single definition in `src/types/index.ts`; remove duplicate in `src/hooks/index.ts`.
+- [ ] **SEO wiring**: Use `SEOMeta` / Helmet in root Layout with `seo.generatePageMetadata()` so meta tags apply.
+- [ ] **Cart payment step**: Ensure payment form uses `type="submit"` and `onSubmit` so Zod validation runs before processing.
+- [ ] **Tests**: Add unit/integration tests for hooks (useCart, useProductFilter), contact form, checkout redirect.
+- [ ] **Asset paths**: Verify `src/assets/index.ts` paths work in production build (or use Vite imports / public folder).

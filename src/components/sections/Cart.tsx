@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { X, Plus, Minus, ShoppingBag, Shield, ArrowRight, ArrowLeft } from 'lucide-react'
 import { useCart } from '../../hooks'
 import { TrustBadges, PaymentMethods, SecuritySeals } from '../ui/TrustBadges'
+import { createCartCheckoutUrl, isShopifyConfigured } from '../../lib/shopify'
 
 // Zod schemas for checkout forms
 const shippingSchema = z.object({
@@ -42,7 +43,6 @@ export function Cart({ className = '' }: CartProps) {
     removeFromCart,
     updateQuantity,
     getTotalPrice,
-    startGuestCheckout,
     updateCheckoutInfo,
     nextStep,
     previousStep,
@@ -50,6 +50,39 @@ export function Cart({ className = '' }: CartProps) {
   } = useCart()
 
   const [isProcessing, setIsProcessing] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+
+  const handleProceedToCheckout = async () => {
+    setCheckoutError(null)
+    if (!isShopifyConfigured()) {
+      setCheckoutError('Checkout is not configured. Add VITE_SHOPIFY_STORE_DOMAIN and VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN to .env.')
+      return
+    }
+    const lines = cartItems
+      .filter((item) => item.product.shopifyVariantId)
+      .map((item) => ({
+        merchandiseId: item.product.shopifyVariantId!,
+        quantity: item.quantity,
+      }))
+    if (lines.length === 0) {
+      setCheckoutError('No items are available for checkout. Products need Shopify variant IDs.')
+      return
+    }
+    if (lines.length < cartItems.length) {
+      setCheckoutError(`${cartItems.length - lines.length} item(s) could not be added to checkout (missing product link).`)
+    }
+    setIsProcessing(true)
+    try {
+      const checkoutUrl = await createCartCheckoutUrl(lines)
+      window.location.href = checkoutUrl
+    } catch (err) {
+      setCheckoutError(err instanceof Error ? err.message : 'Checkout failed.')
+      setIsProcessing(false)
+    }
+  }
+
+  const shopifyReady = isShopifyConfigured()
+  const cartItemsWithVariant = cartItems.filter((item) => item.product.shopifyVariantId).length
 
   // Shipping form
   const shippingForm = useForm<ShippingFormData>({
@@ -192,13 +225,35 @@ export function Cart({ className = '' }: CartProps) {
 
                 <TrustBadges variant="compact" badges={['ssl', 'security', 'payment']} />
 
+                {checkoutError && (
+                  <p className="text-sm text-red-600" role="alert">
+                    {checkoutError}
+                  </p>
+                )}
+
                 <button
-                  onClick={startGuestCheckout}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+                  onClick={handleProceedToCheckout}
+                  disabled={isProcessing || (shopifyReady && cartItemsWithVariant === 0)}
+                  className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
                 >
-                  <span>Guest Checkout</span>
-                  <ArrowRight className="h-4 w-4" />
+                  {isProcessing ? (
+                    <>
+                      <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                      <span>Redirecting to checkout…</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Proceed to Checkout</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
                 </button>
+
+                {!shopifyReady && (
+                  <p className="text-xs text-gray-500">
+                    Add Shopify Storefront API env vars to enable checkout.
+                  </p>
+                )}
 
                 <button
                   onClick={() => setIsOpen(false)}
