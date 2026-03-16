@@ -11,11 +11,51 @@ import { Gallery } from '../components/ugc/Gallery'
 import { LiveCounter } from '../components/ui/LiveCounter'
 import { ReviewSystem } from '../components/ui/ReviewSystem'
 import { SearchBox } from '../components/ui/SearchBox'
+import { LoadingSpinner } from '../components/ui/LoadingSpinner'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
 import { useSearch } from '../hooks/useSearch'
-import { products, categories, companyInfo } from '../data'
+import { useShopifyProducts, useShopifyNavigation } from '../hooks/useShopify'
+import { companyInfo } from '../data'
 
 export function HomePage() {
+  const { products, loading, error } = useShopifyProducts()
+  const { navigationItems } = useShopifyNavigation()
+  
   const { query, setQuery, suggestions, filters, setFilter, resetAll, filteredProducts } = useSearch(products)
+
+  if (loading) {
+    return (
+      <>
+        <Hero />
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <LoadingSpinner size="lg" />
+            <p className="mt-4 text-gray-600">Loading products...</p>
+          </div>
+        </section>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <>
+        <Hero />
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <ErrorMessage 
+              title="Products Error" 
+              message={error}
+              action={() => window.location.reload()}
+              actionText="Try Again"
+            />
+          </div>
+        </section>
+      </>
+    )
+  }
+
+  const categories = navigationItems.map(item => item.title)
 
   return (
     <>

@@ -1,5 +1,6 @@
 // Performance optimization utilities for 2026 best practices
 import { onCLS, onLCP, onFCP, onTTFB, onINP } from 'web-vitals'
+import { analytics } from '../analytics/tracking'
 
 // Extend Window interface for web vitals
 declare global {
@@ -46,9 +47,9 @@ export const performanceOptimizations = {
   }
 }
 
-// Core Web Vitals monitoring with web-vitals library
+// Core Web Vitals monitoring with web-vitals library and attribution
 export const coreWebVitals = {
-  // Enhanced monitoring with web-vitals library
+  // Enhanced monitoring with web-vitals library and analytics integration
   initWebVitalsMonitoring: (onMetric?: (metric: any) => void) => {
     const handleMetric = (metric: any) => {
       // Log in development
@@ -56,7 +57,33 @@ export const coreWebVitals = {
         console.log(`${metric.name}:`, metric.value, metric.rating)
       }
       
-      // Send to analytics or custom handler
+      // Send to analytics with attribution data
+      const metricData = {
+        name: metric.name,
+        value: metric.value,
+        rating: metric.rating,
+        delta: metric.delta,
+        id: metric.id,
+        page: window.location.pathname,
+        timestamp: Date.now(),
+        // Attribution data for debugging
+        ...(metric.attribution && {
+          element: metric.attribution.largestShiftTarget || // CLS
+                 metric.attribution.interactionTarget || // INP
+                 metric.attribution.element, // LCP
+          url: metric.attribution.url,
+          loadState: metric.attribution.loadState,
+          navigationType: metric.attribution.navigationType
+        })
+      }
+      
+      // Track performance metric in analytics
+      analytics.track({
+        name: `performance_${metric.name.toLowerCase()}`,
+        properties: metricData
+      })
+      
+      // Custom handler
       onMetric?.(metric)
       
       // Store for debugging
@@ -70,12 +97,21 @@ export const coreWebVitals = {
       }
     }
 
-    // Monitor all Core Web Vitals
-    onCLS(handleMetric)
-    onLCP(handleMetric)
-    onFCP(handleMetric)
-    onTTFB(handleMetric)
-    onINP(handleMetric)
+    // Monitor all Core Web Vitals with attribution
+    import('web-vitals/attribution').then(({ onCLS, onINP, onLCP, onFCP, onTTFB }) => {
+      onCLS(handleMetric)
+      onINP(handleMetric)
+      onLCP(handleMetric)
+      onFCP(handleMetric)
+      onTTFB(handleMetric)
+    }).catch(() => {
+      // Fallback to regular web-vitals if attribution not available
+      onCLS(handleMetric)
+      onINP(handleMetric)
+      onLCP(handleMetric)
+      onFCP(handleMetric)
+      onTTFB(handleMetric)
+    })
   },
 
   // Monitor LCP (Largest Contentful Paint) - legacy method
@@ -213,6 +249,17 @@ export const devPerformanceMonitoring = {
         const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
         console.log('Page Load Time:', navigation.loadEventEnd - navigation.fetchStart, 'ms')
         console.log('DOM Content Loaded:', navigation.domContentLoadedEventEnd - navigation.fetchStart, 'ms')
+        
+        // Track page load performance
+        analytics.track({
+          name: 'page_load_performance',
+          properties: {
+            loadTime: navigation.loadEventEnd - navigation.fetchStart,
+            domContentLoaded: navigation.domContentLoadedEventEnd - navigation.fetchStart,
+            firstPaint: performance.getEntriesByType('paint')[0]?.startTime || 0,
+            firstContentfulPaint: performance.getEntriesByType('paint')[1]?.startTime || 0
+          }
+        })
       })
     }
   },
@@ -223,5 +270,137 @@ export const devPerformanceMonitoring = {
       // This would integrate with React DevTools Profiler
       console.log('React Performance Monitoring Active')
     }
+  }
+}
+
+// Real User Monitoring (RUM) system
+export const realUserMonitoring = {
+  // Track resource loading performance
+  trackResourceTiming: () => {
+    const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
+    
+    const slowResources = resources.filter(resource => 
+      resource.duration > 1000 // Resources taking longer than 1 second
+    )
+    
+    if (slowResources.length > 0) {
+      analytics.track({
+        name: 'slow_resources_detected',
+        properties: {
+          count: slowResources.length,
+          resources: slowResources.map(r => ({
+            name: r.name,
+            duration: r.duration,
+            size: r.transferSize,
+            type: r.initiatorType
+          }))
+        }
+      })
+    }
+  },
+  
+  // Track long tasks that affect INP
+  trackLongTasks: () => {
+    if ('PerformanceObserver' in window) {
+      const observer = new PerformanceObserver((entryList) => {
+        const entries = entryList.getEntries()
+        entries.forEach(entry => {
+          if (entry.duration > 50) { // Long tasks over 50ms
+            analytics.track({
+              name: 'long_task_detected',
+              properties: {
+                duration: entry.duration,
+                startTime: entry.startTime,
+                name: entry.name
+              }
+            })
+          }
+        })
+      })
+      
+      try {
+        observer.observe({ entryTypes: ['longtask'] })
+      } catch (e) {
+        // Long task monitoring not supported
+      }
+    }
+  },
+  
+  // Monitor memory usage
+  trackMemoryUsage: () => {
+    if ('memory' in performance) {
+      const memory = (performance as any).memory
+      
+      analytics.track({
+        name: 'memory_usage',
+        properties: {
+          usedJSHeapSize: memory.usedJSHeapSize,
+          totalJSHeapSize: memory.totalJSHeapSize,
+          jsHeapSizeLimit: memory.jsHeapSizeLimit,
+          usagePercentage: (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100
+        }
+      })
+    }
+  },
+  
+  // Initialize all RUM tracking
+  init: () => {
+    // Track resources after page load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        this.trackResourceTiming()
+        this.trackMemoryUsage()
+      }, 1000)
+    })
+    
+    this.trackLongTasks()
+  }
+}
+
+// Performance budget monitoring
+export const performanceBudget = {
+  // Budget thresholds
+  thresholds: {
+    totalSize: 1500000, // 1.5MB total page size
+    jsSize: 500000,    // 500KB JavaScript
+    cssSize: 100000,    // 100KB CSS
+    imageSize: 500000,  // 500KB images
+    fontCount: 5,       // Maximum 5 fonts
+    requestCount: 50    // Maximum 50 requests
+  },
+  
+  // Check if performance budget is exceeded
+  checkBudget: () => {
+    const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
+    
+    const metrics = {
+      totalSize: resources.reduce((sum, r) => sum + (r.transferSize || 0), 0),
+      jsSize: resources.filter(r => r.name.endsWith('.js')).reduce((sum, r) => sum + (r.transferSize || 0), 0),
+      cssSize: resources.filter(r => r.name.endsWith('.css')).reduce((sum, r) => sum + (r.transferSize || 0), 0),
+      imageSize: resources.filter(r => /\.(jpg|jpeg|png|gif|webp|avif)$/i.test(r.name)).reduce((sum, r) => sum + (r.transferSize || 0), 0),
+      fontCount: resources.filter(r => r.name.endsWith('.woff') || r.name.endsWith('.woff2')).length,
+      requestCount: resources.length
+    }
+    
+    const violations = Object.entries(this.thresholds)
+      .filter(([key, threshold]) => metrics[key as keyof typeof metrics] > threshold)
+      .map(([key, threshold]) => ({
+        metric: key,
+        threshold,
+        actual: metrics[key as keyof typeof metrics],
+        exceeded: true
+      }))
+    
+    if (violations.length > 0) {
+      analytics.track({
+        name: 'performance_budget_exceeded',
+        properties: {
+          violations,
+          metrics
+        }
+      })
+    }
+    
+    return { metrics, violations }
   }
 }

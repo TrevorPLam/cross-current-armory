@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Menu, X, Search, ShoppingCart, User } from 'lucide-react'
 import { useCart } from '../../../hooks'
 import { useTouchGestures } from '../../../hooks/useTouchGestures'
+import { useShopifyNavigation } from '../../../hooks/useShopify'
 import { companyInfo } from '../../../data'
 
 interface NavigationProps {
@@ -17,6 +18,7 @@ export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCou
   const { setIsOpen } = useCart()
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const { swipeDirection } = useTouchGestures(mobileMenuRef, { threshold: 60, enabled: isMenuOpen })
+  const { navigationItems } = useShopifyNavigation()
 
   // Swipe-left or swipe-up on the open mobile menu closes it
   useEffect(() => {
@@ -25,9 +27,11 @@ export function Navigation({ isMenuOpen, setIsMenuOpen, isScrolled, cartItemsCou
     }
   }, [swipeDirection, setIsMenuOpen])
 
+  // Build navigation links with Shopify collections or fallback
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/collections/all', label: 'Products' },
+    ...navigationItems.slice(0, 3).map(item => ({ to: item.url, label: item.title })), // Show first 3 collections
     { to: '/blog', label: 'Blog' },
     { to: '/#about', label: 'About' },
     { to: '/#contact', label: 'Contact' },

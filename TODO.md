@@ -882,125 +882,247 @@ const FAQSystem: React.FC<{faqs: FAQ[]}> = ({faqs}) => {
 
 ---
 
-## [TASK-008] Analytics and Performance Monitoring
-- [ ] **Implement Comprehensive Analytics System**
-  - [ ] Add conversion tracking and funnel analysis
-    - Target: `src/analytics/tracking.ts` (create)
-  - [ ] Implement user behavior analytics
-    - Target: `src/hooks/useAnalytics.ts` (create)
-  - [ ] Create A/B testing framework
-    - Target: `src/components/experiments/ABTest.tsx` (create)
-  - [ ] Add performance monitoring dashboard
-    - Target: `src/components/admin/Analytics.tsx` (create)
-  - [ ] Implement error tracking and logging
-    - Target: `src/utils/errorTracking.ts` (create)
+## [TASK-008] Analytics and Performance Monitoring ✅ COMPLETED
+- [x] **Implement Comprehensive Analytics System**
+  - [x] Add conversion tracking and funnel analysis
+    - Target: `src/analytics/tracking.ts` (created) ✅
+  - [x] Implement user behavior analytics
+    - Target: `src/hooks/useAnalytics.ts` (created) ✅
+  - [x] Create A/B testing framework
+    - Target: `src/components/experiments/ABTest.tsx` (created) ✅
+  - [x] Add performance monitoring dashboard
+    - Target: `src/components/admin/Analytics.tsx` (created) ✅
+  - [x] Implement error tracking and logging
+    - Target: `src/utils/errorTracking.ts` (created) ✅
+
+**Implementation Notes:**
+- ✅ Successfully implemented comprehensive analytics tracking system with Google Analytics 4 integration
+- ✅ Created user behavior analytics hook tracking scroll depth, clicks, form interactions, search queries, and engagement scores
+- ✅ Enhanced cart system with conversion tracking for add-to-cart, checkout initiation, and purchase events
+- ✅ Built performance monitoring with Core Web Vitals attribution data, Real User Monitoring (RUM), and performance budget checking
+- ✅ Implemented Sentry error tracking with custom error classes, global error handlers, and React Error Boundary
+- ✅ Created performance monitoring dashboard with real-time metrics, Core Web Vitals visualization, and system health monitoring
+- ✅ Built comprehensive analytics dashboard with user behavior, conversion metrics, traffic analysis, and product performance
+- ✅ Developed A/B testing framework with user segmentation, traffic splitting, and conversion tracking
+- ✅ Integrated all systems into main App.tsx with proper initialization and error boundaries
+- ✅ Updated environment variables configuration with comprehensive analytics settings
 
 **Related Code Files:**
-- `src/App.tsx` - Router; `src/components/Layout.tsx` - Main layout for tracking
-- `vite.config.ts` - Build configuration
-
-**Existing Code Patterns:**
-```typescript
-// Current basic cart tracking
-const addToCart = () => {
-  setCartItems(prev => prev + 1)
-  // No analytics tracking currently
-}
-
-// No performance monitoring currently implemented
-```
+- `src/App.tsx` - Integrated all monitoring systems with ErrorBoundary and ABTestProvider
+- `src/hooks/index.ts` - Enhanced cart with conversion tracking and added useAnalytics export
+- `src/utils/performance.ts` - Enhanced with attribution data, RUM, and performance budget monitoring
+- `.env.example` - Updated with comprehensive analytics environment variables
 
 **Advanced Coding Patterns:**
 ```typescript
-// Comprehensive analytics tracking
-const useAnalytics = () => {
-  const trackEvent = useCallback((event: AnalyticsEvent) => {
-    // Send to multiple analytics providers
-    analytics.track(event.name, event.properties)
-    gtag('event', event.name, event.properties)
-    fbq('track', event.name, event.properties)
-  }, [])
-  
-  const trackPageView = useCallback((path: string) => {
-    analytics.page(path)
-    gtag('config', 'GA_MEASUREMENT_ID', { page_location: window.location.href })
-  }, [])
-  
-  const trackConversion = useCallback((conversion: ConversionEvent) => {
-    analytics.track('Conversion Completed', {
-      value: conversion.value,
-      currency: conversion.currency,
-      product_id: conversion.productId,
-      user_id: conversion.userId
-    })
-  }, [])
-  
-  return { trackEvent, trackPageView, trackConversion }
+// Analytics tracking with GA4 integration
+const analytics = {
+  track: (event: AnalyticsEvent) => {
+    // Send to GA4 with custom parameters
+    if (window.gtag) {
+      window.gtag('event', event.name, {
+        ...event.properties,
+        custom_parameter_1: userId,
+        custom_parameter_2: sessionId
+      })
+    }
+    // Send to custom endpoint
+    sendToCustomEndpoint({ type: 'event', data: eventData })
+  }
 }
 
-// A/B testing framework
-const ABTest: React.FC<{
-  testName: string
-  variants: Record<string, React.ComponentType>
-  children: (variant: string) => React.ReactNode
-}> = ({ testName, variants, children }) => {
-  const [variant, setVariant] = useState<string>('')
-  
-  useEffect(() => {
-    // Determine variant for this user
-    const userVariant = getVariantForUser(testName)
-    setVariant(userVariant)
-    
-    // Track assignment
-    analytics.track('AB Test Assigned', {
-      test_name: testName,
-      variant: userVariant
-    })
-  }, [testName])
-  
-  const VariantComponent = variants[variant]
-  return <VariantComponent />
+// User behavior tracking with engagement scoring
+const useAnalytics = (options: UseAnalyticsOptions = {}) => {
+  const calculateEngagementScore = useCallback(() => {
+    const timeScore = Math.min(metrics.timeOnPage / 60000, 1) * 25
+    const scrollScore = (metrics.scrollDepth / 100) * 25
+    const clickScore = Math.min(metrics.clicksCount / 10, 1) * 25
+    const interactionScore = Math.min(metrics.formInteractions / 5, 1) * 25
+    return timeScore + scrollScore + clickScore + interactionScore
+  }, [metrics])
 }
 
-// Performance monitoring
-const usePerformanceMonitoring = () => {
-  useEffect(() => {
-    // Monitor page load times
-    const observer = new PerformanceObserver((list) => {
-      list.getEntries().forEach((entry) => {
-        if (entry.entryType === 'navigation') {
-          const loadTime = entry.loadEventEnd - entry.loadEventStart
-          if (loadTime > 3000) {
-            // Report slow page load
-            reportPerformanceIssue('slow_page_load', { loadTime })
-          }
+// A/B testing with user segmentation
+const ABTestProvider: React.FC = ({ children }) => {
+  const getVariant = useCallback((testId: string): string | null => {
+    // Check targeting criteria and assign variant based on traffic split
+    if (test.targeting?.deviceTypes && !test.targeting.deviceTypes.includes(user.deviceType)) {
+      return null
+    }
+    const random = Math.random()
+    let cumulative = 0
+    for (let i = 0; i < test.variants.length; i++) {
+      cumulative += test.trafficSplit[i]
+      if (random <= cumulative) {
+        return test.variants[i].id
+      }
+    }
+    return null
+  }, [user])
+}
+
+// Performance monitoring with attribution
+const coreWebVitals = {
+  initWebVitalsMonitoring: (onMetric?: (metric: any) => void) => {
+    const handleMetric = (metric: any) => {
+      // Send to analytics with attribution data
+      analytics.track({
+        name: `performance_${metric.name.toLowerCase()}`,
+        properties: {
+          ...metric,
+          attribution: metric.attribution
         }
       })
+    }
+    import('web-vitals/attribution').then(({ onCLS, onINP, onLCP }) => {
+      onCLS(handleMetric)
+      onINP(handleMetric)
+      onLCP(handleMetric)
     })
-    
-    observer.observe({ entryTypes: ['navigation'] })
-    
-    return () => observer.disconnect()
+  }
+}
+
+// Error tracking with Sentry integration
+export const errorTracking = {
+  trackError: (error: Error | ApplicationError, context?: Partial<ErrorContext>) => {
+    if (ERROR_CONFIG.ENABLED) {
+      Sentry.withScope((scope) => {
+        scope.setTag('component', errorContext.component)
+        scope.setContext('error_details', errorContext)
+        Sentry.captureException(error)
+      })
+    }
+  }
+}
+```
+
+## [TASK-009] Storefront Phase 2 Implementation ✅ COMPLETED
+- [x] **Shopify Storefront API Integration**
+  - [x] Created TypeScript interfaces for Shopify GraphQL responses ✅
+    - Target: `src/types/shopify.ts` (created) ✅
+  - [x] Extended Shopify client with product/collection fetching ✅
+    - Target: `src/lib/shopify.ts` (enhanced) ✅
+  - [x] Implemented Shopify data mapping utilities ✅
+    - Target: `src/utils/shopifyMapper.ts` (created) ✅
+  - [x] Created React hooks for Shopify data fetching ✅
+    - Target: `src/hooks/useShopify.ts` (created) ✅
+- [x] **Component Updates for Shopify Integration**
+  - [x] Updated CollectionPage to use Shopify data and handles ✅
+    - Target: `src/pages/CollectionPage.tsx` (modified) ✅
+  - [x] Updated ProductPage with variant selection and Shopify data ✅
+    - Target: `src/pages/ProductPage.tsx` (enhanced) ✅
+  - [x] Updated HomePage to use Shopify products ✅
+    - Target: `src/pages/HomePage.tsx` (modified) ✅
+  - [x] Updated Navigation to use Shopify collection handles ✅
+    - Target: `src/components/organisms/Navigation/Navigation.tsx` (enhanced) ✅
+- [x] **Cart Integration with Shopify Variant GIDs**
+  - [x] Enhanced cart hook to handle Shopify variant IDs ✅
+    - Target: `src/hooks/index.ts` (updated) ✅
+  - [x] Added validation for shopifyVariantId in cart items ✅
+  - [x] Ensured checkout works with Shopify variant GIDs ✅
+- [x] **Fallback and Error Handling**
+  - [x] Implemented graceful fallback to static data when API unavailable ✅
+  - [x] Added loading states and error boundaries ✅
+    - Target: `src/components/ui/LoadingSpinner.tsx` (created) ✅
+    - Target: `src/components/ui/ErrorMessage.tsx` (created) ✅
+  - [x] Added configuration checking for Shopify API ✅
+
+**Implementation Notes:**
+- ✅ Successfully integrated Shopify Storefront API 2026-01 with full GraphQL support
+- ✅ Implemented comprehensive TypeScript interfaces for all Shopify response types
+- ✅ Created robust data mapping layer that converts Shopify products to internal Product type
+- ✅ Built React hooks with fallback to static data when Shopify API is not configured
+- ✅ Enhanced cart system to properly handle Shopify variant GIDs for checkout
+- ✅ Updated all product/collection pages to use live Shopify data
+- ✅ Implemented variant selection with proper pricing and availability
+- ✅ Added loading states and error handling throughout the application
+- ✅ Maintained backward compatibility with existing static data structure
+- ✅ Development server runs successfully with Shopify integration
+
+**Shopify API Features Implemented:**
+- Product fetching with variants, images, and pricing
+- Collection fetching with product relationships
+- Product search and filtering capabilities
+- Variant selection with proper GID mapping
+- Category navigation using Shopify collection handles
+- Cart integration with Shopify checkout redirect
+
+**Technical Architecture:**
+- GraphQL queries with proper fragments for performance
+- Pagination support for large product/collection sets
+- Error handling with graceful degradation
+- TypeScript type safety throughout the data flow
+- React hooks with proper loading and error states
+- Fallback behavior when environment variables are not configured
+
+**Environment Configuration:**
+- `VITE_SHOPIFY_STORE_DOMAIN=cross-currentprecisionarmory`
+- `VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN=<token>` (required for live data)
+- App works with static data when API is not configured
+
+**Related Code Files:**
+- `src/types/shopify.ts` - Complete Shopify GraphQL type definitions
+- `src/lib/shopify.ts` - Extended Shopify API client with catalog fetching
+- `src/utils/shopifyMapper.ts` - Data mapping utilities
+- `src/hooks/useShopify.ts` - React hooks for Shopify data
+- `src/pages/CollectionPage.tsx` - Shopify-powered collection pages
+- `src/pages/ProductPage.tsx` - Shopify-powered product pages with variants
+- `src/pages/HomePage.tsx` - Shopify-powered home page
+- `src/components/organisms/Navigation/Navigation.tsx` - Shopify collection navigation
+
+**Advanced Coding Patterns:**
+```typescript
+// Shopify GraphQL query with fragments
+const PRODUCT_FRAGMENT = `
+  fragment ProductFields on Product {
+    id
+    title
+    handle
+    description
+    variants(first: 50) {
+      edges {
+        node {
+          id
+          title
+          price { amount, currencyCode }
+          selectedOptions { name, value }
+          availableForSale
+        }
+      }
+    }
+  }
+`
+
+// React hook with fallback behavior
+export function useShopifyProducts() {
+  const [products, setProducts] = useState<Product[]>(staticProducts)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchProducts = useCallback(async () => {
+    if (!isShopifyConfigured()) {
+      setProducts(staticProducts)
+      return
+    }
+    // Fetch from Shopify API...
   }, [])
 }
 
-// Error tracking
-const errorTracking = {
-  trackError: (error: Error, context?: Record<string, any>) => {
-    console.error(error, context)
-    // Send to error tracking service
-    Sentry.captureException(error, { extra: context })
-  },
-  
-  trackUserAction: (action: string, properties?: Record<string, any>) => {
-    // Track user interactions for debugging
+// Data mapping with variant handling
+export function mapShopifyProduct(product: ShopifyProduct): Product {
+  const firstVariant = product.selectedOrFirstAvailableVariant
+  return {
+    id: product.id,
+    name: product.title,
+    price: parseFloat(firstVariant.price.amount),
+    shopifyVariantId: firstVariant.id,
+    handle: product.handle,
+    // ... other mappings
   }
 }
 ```
 
 ---
-
-## Implementation Priority
 
 ### Current focus
 - **Storefront Phase 2**: Shopify as catalog source (products/collections from API; see `docs/STOREFRONT-REPLACEMENT-PLAN.md`)
@@ -1040,8 +1162,39 @@ const errorTracking = {
 
 ## Recent Updates
 
-### ✅ TASK-007 COMPLETED (March 16, 2026)
-Successfully implemented Content Management System:
+### ✅ TASK-008 COMPLETED (March 16, 2026)
+Successfully implemented comprehensive Analytics and Performance Monitoring system:
+
+**Analytics Tracking System**
+- **`src/analytics/tracking.ts`**: Complete GA4 integration with custom event tracking, e-commerce events (product views, add to cart, checkout, purchase), user properties, and privacy-compliant sampling
+- **`src/hooks/useAnalytics.ts`**: User behavior tracking hook monitoring scroll depth, clicks, form interactions, search queries, exit intent, idle time, and engagement scoring algorithm
+- **Enhanced Cart System**: Updated `src/hooks/index.ts` with conversion tracking for addToCart, startGuestCheckout, and completePurchase functions
+
+**Performance Monitoring**
+- **Enhanced `src/utils/performance.ts`**: Core Web Vitals with attribution data, Real User Monitoring (RUM) for resource timing and long tasks, memory usage tracking, and performance budget monitoring
+- **`src/components/admin/Analytics.tsx`**: Performance monitoring dashboard with real-time Core Web Vitals, system metrics (memory, bundle size, requests), and performance alerts
+
+**Error Tracking**
+- **`src/utils/errorTracking.ts`**: Comprehensive Sentry integration with custom error classes (ApplicationError, NetworkError, ValidationError), global error handlers, React Error Boundary component, and user action tracking
+
+**A/B Testing Framework**
+- **`src/components/experiments/ABTest.tsx`**: Complete A/B testing system with user segmentation, traffic splitting, variant assignment, conversion tracking, and test results analysis
+
+**Analytics Dashboard**
+- **`src/components/admin/AnalyticsDashboard.tsx`**: Comprehensive analytics dashboard with user behavior metrics, conversion funnels, traffic source analysis, product performance, and behavior radar charts
+
+**Integration & Configuration**
+- **`src/App.tsx`**: Integrated all systems with proper initialization order: error tracking → analytics → performance monitoring → page view tracking
+- **`.env.example`**: Updated with comprehensive analytics environment variables (GA4, Sentry, sample rates, feature flags)
+
+**Technical Features**
+- Privacy-compliant analytics with configurable sampling rates
+- Real-time performance monitoring with attribution data
+- Comprehensive error tracking with context and breadcrumbs
+- A/B testing with user segmentation and conversion tracking
+- Interactive dashboards with Recharts data visualization
+- TypeScript interfaces for all analytics data structures
+- Production-ready error boundaries and fallback UIs
 
 **Blog System**
 - **`src/data/blog.ts`**: 5 blog posts with full markdown-lite content, categories (Gear Reviews, Tactical Tips, Industry News, Company Updates, How-To Guides), author info, tags, and featured flag
@@ -1165,8 +1318,8 @@ Successfully implemented repository foundation setup with:
 ### 🎯 Next Priority Tasks
 1. **Storefront Phase 2**: Fetch products/collections from Shopify Storefront API; power collection and product pages with live data (44 products, real variant IDs for checkout). Generate sitemap from API when implemented.
 2. **TASK-006**: Mobile-First Optimization (PWA, offline support, touch gestures, QuickView modal) ✅ COMPLETED.
-3. **TASK-007**: Content Management System.
-4. **TASK-008**: Analytics and Performance Monitoring.
+3. **TASK-007**: Content Management System ✅ COMPLETED.
+4. **TASK-008**: Analytics and Performance Monitoring ✅ COMPLETED.
 
 ---
 

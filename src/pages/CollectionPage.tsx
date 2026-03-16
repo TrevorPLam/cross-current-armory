@@ -5,25 +5,52 @@ import { FilterPanel } from '../components/ui/FilterPanel'
 import { Recommendations } from '../components/ui/Recommendations'
 import { useSearch } from '../hooks/useSearch'
 import { useRecentlyViewed } from '../hooks/useRecentlyViewed'
-import { products, categories } from '../data'
-
-function categoryToSlug(cat: string) {
-  return cat.toLowerCase().replace(/\s+/g, '-')
-}
+import { useShopifyCollection, useShopifyNavigation } from '../hooks/useShopify'
+import { LoadingSpinner } from '../components/ui/LoadingSpinner'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
+import type { Category } from '../types'
 
 export function CollectionPage() {
   const { handle } = useParams<{ handle: string }>()
   const isAll = !handle || handle === 'all'
 
-  // Pre-filter by URL handle so the filter panel starts in sync
-  const baseProducts = isAll
-    ? products
-    : products.filter((p) => categoryToSlug(p.category) === handle)
+  // Get collection data from Shopify or fallback to static
+  const { products, loading, error } = useShopifyCollection(isAll ? 'all' : handle || 'all')
+  const { navigationItems } = useShopifyNavigation()
 
+  const categories: Category[] = ['All', 'Body Armor', 'Plate Carriers', 'Equipment']
+  
+  // Use search hook with the products we got from Shopify/static
   const { query, setQuery, suggestions, filters, setFilter, resetFilters, resetAll, filteredProducts } =
-    useSearch(baseProducts)
+    useSearch(products)
 
   const { viewedIds } = useRecentlyViewed()
+
+  if (loading) {
+    return (
+      <div className="py-16 bg-gray-50 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-600">Loading collection...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="py-16 bg-gray-50 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ErrorMessage 
+            title="Collection Error" 
+            message={error}
+            action={() => window.location.reload()}
+            actionText="Try Again"
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="py-16 bg-gray-50 min-h-screen">
@@ -36,26 +63,18 @@ export function CollectionPage() {
         </p>
 
         {/* Category nav links */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          <Link
-            to="/collections/all"
-            className={`px-4 py-2 rounded-full transition-all duration-200 ${
-              isAll ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-            }`}
-          >
-            All
-          </Link>
-          {categories.filter((c) => c !== 'All').map((category) => {
-            const slug = category.toLowerCase().replace(/\s+/g, '-')
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {navigationItems.map((item) => {
+            if (item.handle === 'all') return null // Skip "All" since we already have it
             return (
               <Link
-                key={category}
-                to={`/collections/${slug}`}
+                key={item.handle}
+                to={item.url}
                 className={`px-4 py-2 rounded-full transition-all duration-200 ${
-                  !isAll && handle === slug ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  !isAll && handle === item.handle ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
-                {category}
+                {item.title}
               </Link>
             )
           })}
