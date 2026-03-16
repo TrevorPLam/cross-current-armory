@@ -3,11 +3,16 @@ import { Features } from '../components/organisms/Features'
 import { ProductCard } from '../components/molecules/ProductCard'
 import { ContactForm } from '../components/ui/ContactForm'
 import { TrustBadges } from '../components/ui/TrustBadges'
+import { SizeGuide } from '../components/ui/SizeGuide'
 import { Testimonials } from '../components/sections/Testimonials'
+import { FAQ } from '../components/sections/FAQ'
+import { Education } from '../components/sections/Education'
 import { Media } from '../components/sections/Media'
 import { LiveCounter } from '../components/ui/LiveCounter'
 import { ReviewSystem } from '../components/ui/ReviewSystem'
 import { SearchBox } from '../components/ui/SearchBox'
+import { BlogEditor } from '../components/cms/BlogEditor'
+import { Gallery } from '../components/ugc/Gallery'
 import { useSearch } from '../hooks/useSearch'
 import { products, categories, companyInfo } from '../data'
 
@@ -184,6 +189,21 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Education Center */}
+      <Education />
+
+      {/* Size Guide */}
+      <SizeGuide />
+
+      {/* FAQ */}
+      <FAQ />
+
+      {/* Community Gallery */}
+      <Gallery />
+
+      {/* Blog / Articles */}
+      <BlogEditor />
     </>
   )
 }
