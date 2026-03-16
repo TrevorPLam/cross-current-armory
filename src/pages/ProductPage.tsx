@@ -1,11 +1,20 @@
 import { useParams, Link } from 'react-router-dom'
+import { useEffect } from 'react'
 import { products } from '../data'
+import { useRecentlyViewed } from '../hooks/useRecentlyViewed'
+import { Recommendations } from '../components/ui/Recommendations'
 
 export function ProductPage() {
   const { handle } = useParams<{ handle: string }>()
   const product = products.find(
     (p) => p.handle === handle || p.id === handle || p.name.toLowerCase().replace(/\s+/g, '-').replace(/[–—]/g, '-') === handle
   )
+
+  const { addToViewed, viewedIds } = useRecentlyViewed()
+
+  useEffect(() => {
+    if (product) addToViewed(product.id)
+  }, [product, addToViewed])
 
   if (!product) {
     return (
@@ -54,6 +63,16 @@ export function ProductPage() {
               View all products
             </Link>
           </div>
+        </div>
+
+        {/* Similar products */}
+        <div className="mt-16">
+          <Recommendations
+            currentProduct={product}
+            recentlyViewedIds={viewedIds}
+            allProducts={products}
+            maxItems={4}
+          />
         </div>
       </div>
     </div>

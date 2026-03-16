@@ -482,18 +482,18 @@ const useTypewriter = (text: string, speed: number = 50) => {
 
 ---
 
-## [TASK-004] Trust Signals and Social Proof
-- [ ] **Build Comprehensive Trust Building System**
+## [TASK-004] Trust Signals and Social Proof ✅ COMPLETED
+- [x] **Build Comprehensive Trust Building System**
   - [x] Customer testimonial carousel with photos ✅ (TASK-001)
     - `src/components/sections/Testimonials.tsx`, `src/data/testimonials.ts`
-  - [ ] Add live customer count and recent purchases
-    - Target: `src/components/ui/LiveCounter.tsx` (create)
-  - [ ] Implement review system with photos and detailed feedback
-    - Target: `src/components/ui/ReviewSystem.tsx` (create)
+  - [x] Add live customer count and recent purchases ✅
+    - `src/components/ui/LiveCounter.tsx` (created)
+  - [x] Implement review system with photos and detailed feedback ✅
+    - `src/components/ui/ReviewSystem.tsx` (created)
   - [x] Trust badges (SSL, payment methods, certifications) ✅ (TASK-001)
     - `src/components/ui/TrustBadges.tsx`
-  - [ ] Create "As Seen In" media mentions section
-    - Target: `src/components/sections/Media.tsx` (create)
+  - [x] Create "As Seen In" media mentions section ✅
+    - `src/components/sections/Media.tsx` (created)
 
 **Related Code Files:**
 - `src/components/organisms/Hero/Hero.tsx` - Hero trust badges
@@ -576,19 +576,19 @@ interface Review {
 
 ---
 
-## [TASK-005] Advanced Search and Filtering
-- [ ] **Implement Intelligent Product Discovery**
-  - [ ] Add advanced search with autocomplete and suggestions
-    - Target: `src/components/ui/SearchBox.tsx` (create)
-    - Target: `src/hooks/useSearch.ts` (create)
-  - [ ] Implement faceted search with multiple filters
-    - Target: `src/components/ui/FilterPanel.tsx` (create)
+## [TASK-005] Advanced Search and Filtering ✅ COMPLETED
+- [x] **Implement Intelligent Product Discovery**
+  - [x] Add advanced search with autocomplete and suggestions ✅
+    - `src/components/ui/SearchBox.tsx` (created)
+    - `src/hooks/useSearch.ts` (created)
+  - [x] Implement faceted search with multiple filters ✅
+    - `src/components/ui/FilterPanel.tsx` (created)
   - [x] Product comparison tool ✅ (TASK-002)
     - `src/components/ui/ProductComparison/ProductComparison.tsx`
-  - [ ] Create "Recently Viewed" products tracking
-    - Target: `src/hooks/useRecentlyViewed.ts` (create)
-  - [ ] Implement smart recommendations based on browsing
-    - Target: `src/components/ui/Recommendations.tsx` (create)
+  - [x] Create "Recently Viewed" products tracking ✅
+    - `src/hooks/useRecentlyViewed.ts` (created)
+  - [x] Implement smart recommendations based on browsing ✅
+    - `src/components/ui/Recommendations.tsx` (created)
 
 **Related Code Files:**
 - `src/hooks/index.ts` - Current useProductFilter hook
@@ -1004,11 +1004,10 @@ const errorTracking = {
 
 ### Current focus
 - **Storefront Phase 2**: Shopify as catalog source (products/collections from API; see `docs/STOREFRONT-REPLACEMENT-PLAN.md`)
-- **TASK-003**: Interactive Hero Section (User Experience)
 
-### Phase 2 (Trust & discovery)
-- TASK-004: Trust Signals and Social Proof (remaining: LiveCounter, ReviewSystem, Media)
-- TASK-005: Advanced Search and Filtering (remaining: SearchBox, FilterPanel, useRecentlyViewed, Recommendations)
+### Phase 2 (Trust & discovery) ✅ COMPLETED
+- TASK-004: Trust Signals and Social Proof ✅ COMPLETED
+- TASK-005: Advanced Search and Filtering ✅ COMPLETED
 
 ### Phase 3 (Advanced features)
 - TASK-006: Mobile-First Optimization (PWA, touch gestures, QuickView)
@@ -1040,6 +1039,26 @@ const errorTracking = {
 ---
 
 ## Recent Updates
+
+### ✅ TASK-004 & TASK-005 COMPLETED (March 16, 2026)
+Successfully implemented Trust Signals + Advanced Search & Filtering:
+
+**TASK-004 – Trust Signals (remaining items)**
+- **LiveCounter** (`src/components/ui/LiveCounter.tsx`): Real-time activity strip (viewer count, monthly sales, demand indicator) + animated purchase notification toasts (bottom-left, framer-motion `AnimatePresence`, `aria-live` for screen readers)
+- **ReviewSystem** (`src/components/ui/ReviewSystem.tsx`): Full review display with star-rating breakdown bar chart, sort (recent/highest/lowest), filter by star rating, expandable review cards, helpful voting; uses existing `testimonials.ts` data
+- **Media** (`src/components/sections/Media.tsx`): "As Seen In" press/media grid — 6 mention cards with publication name, type badge (magazine/news/blog/podcast), quote, and optional external link; trust outlet strip below
+
+**TASK-005 – Advanced Search & Filtering (remaining items)**
+- **useSearch** (`src/hooks/useSearch.ts`): Search hook with text matching (name, description, category) + multi-dimensional filters: category, maxPrice, minRating, inStockOnly; memoized for performance
+- **useRecentlyViewed** (`src/hooks/useRecentlyViewed.ts`): localStorage-backed recently viewed products hook; uses lazy `useState` initializer to avoid set-state-in-effect lint violation
+- **SearchBox** (`src/components/ui/SearchBox.tsx`): Accessible combobox (ARIA pattern) with animated suggestion dropdown; `onMouseDown + preventDefault` preserves focus for keyboard users; clear button
+- **FilterPanel** (`src/components/ui/FilterPanel.tsx`): Collapsible sidebar filter panel — category radio buttons, max-price range slider, min-rating slider, in-stock checkbox; "Clear all" when filters active
+- **Recommendations** (`src/components/ui/Recommendations.tsx`): Smart product recommendations — similar products by category (ProductPage), recently viewed fallback, top-rated fallback (CollectionPage/HomePage)
+
+**Page integrations**
+- `HomePage.tsx`: LiveCounter stats strip + purchase notifications, SearchBox (replaces inline input), ReviewSystem section, Media ("As Seen In") section
+- `CollectionPage.tsx`: Sidebar FilterPanel + SearchBox, Recommendations at bottom
+- `ProductPage.tsx`: `useRecentlyViewed` tracks viewed products; Recommendations shows similar products
 
 ### 📋 TODO.md sync (March 2026)
 - Added **Storefront Replacement** section (Phase 1 done: Router, Shopify client, cart → checkout redirect).
@@ -1102,8 +1121,9 @@ Successfully implemented repository foundation setup with:
 
 ### 🎯 Next Priority Tasks
 1. **Storefront Phase 2**: Fetch products/collections from Shopify Storefront API; power collection and product pages with live data (44 products, real variant IDs for checkout). Generate sitemap from API when implemented.
-2. **TASK-004** (remaining): LiveCounter, ReviewSystem, "As Seen In" Media section.
-3. **TASK-005** (remaining): SearchBox with autocomplete, FilterPanel, useRecentlyViewed, Recommendations.
+2. **TASK-006**: Mobile-First Optimization (PWA, offline support, touch gestures, QuickView modal).
+3. **TASK-007**: Content Management System.
+4. **TASK-008**: Analytics and Performance Monitoring.
 
 ---
 
