@@ -2,6 +2,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './App.css'
 import App from './App.tsx'
+import { errorTracking } from './utils/errorTracking'
+
+// Install global error handlers as early as possible
+errorTracking.init()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
