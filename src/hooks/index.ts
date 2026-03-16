@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { Product } from '../types'
+import { analytics } from '../analytics/tracking'
 
 export interface CartItem {
   id: string
@@ -86,10 +87,13 @@ export function useCart() {
         addedAt: new Date()
       }]
     })
+    analytics.trackAddToCart(product.id, product.name, product.price, quantity)
     setIsOpen(true)
   }
 
   const removeFromCart = (itemId: string) => {
+    const item = cartItems.find(i => i.id === itemId)
+    if (item) analytics.trackRemoveFromCart(item.product.id, item.product.name)
     setCartItems(prev => prev.filter(item => item.id !== itemId))
   }
 
@@ -195,3 +199,4 @@ export function useProductFilter(products: Product[]) {
 
 export { useTouchGestures } from './useTouchGestures'
 export type { SwipeDirection, TouchGestureOptions, TouchGestureResult } from './useTouchGestures'
+export { useAnalytics } from './useAnalytics'
