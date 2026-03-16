@@ -17,11 +17,13 @@ Built with Vite, TailwindCSS, and the Shopify Storefront API.
 ## 🛠️ Technology Stack
 
 - **Frontend**: React 19 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: TailwindCSS 4.2.1
+- **Routing**: React Router (/, /collections/:handle, /products/:handle)
+- **Build**: Vite 8
+- **Styling**: TailwindCSS 4.2
 - **Icons**: Lucide React + Heroicons
 - **Forms**: React Hook Form + Zod validation
 - **Animations**: Framer Motion
+- **Commerce**: Shopify Storefront API (catalog + cart → checkout redirect)
 - **Linting**: ESLint with TypeScript support
 
 ## 📦 Installation
@@ -61,21 +63,31 @@ See `.env.example` and [docs/STOREFRONT-REPLACEMENT-PLAN.md](docs/STOREFRONT-REP
 ```
 src/
 ├── components/
-│   ├── atoms/          # Basic UI elements
-│   ├── molecules/      # Combinations of atoms
-│   ├── organisms/      # Complex UI sections
-│   ├── templates/      # Page layouts
-│   └── ui/            # Reusable UI components
-├── data/              # Static data and content
-├── hooks/             # Custom React hooks
-├── utils/             # Utility functions
-├── types/             # TypeScript type definitions
-└── assets/            # Images and static assets
+│   ├── atoms/          # Button, Input
+│   ├── molecules/      # ProductCard
+│   ├── organisms/      # Navigation, Hero, Features
+│   ├── templates/      # MarketingLayout
+│   ├── sections/       # Cart, Testimonials
+│   ├── ui/             # ContactForm, TrustBadges, ProductGallery, etc.
+│   └── seo/            # SEOMeta
+├── pages/              # HomePage, CollectionPage, ProductPage (routes)
+├── hooks/              # useCart, useProductFilter, useScrollPosition
+├── lib/                # Shopify Storefront API client
+├── utils/              # performance, seo, accessibility, imageOptimization
+├── types/              # TypeScript type definitions
+├── data/               # Products, companyInfo, testimonials
+└── assets/             # Images and asset path exports
 ```
+
+**Routes:** `/` (home), `/collections/all`, `/collections/:handle`, `/products/:handle`.
 
 ## 🎯 Development
 
 This project follows atomic design principles and TypeScript best practices. All components are properly typed and include accessibility features.
+
+- **Roadmap:** [TODO.md](TODO.md) — tasks, phases, and tech debt.
+- **Storefront plan:** [docs/STOREFRONT-REPLACEMENT-PLAN.md](docs/STOREFRONT-REPLACEMENT-PLAN.md).
+- **Live site analysis:** [docs/LIVE-SITE-ANALYSIS.md](docs/LIVE-SITE-ANALYSIS.md).
 
 ## 📄 License
 
